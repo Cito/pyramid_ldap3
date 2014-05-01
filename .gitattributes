@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+*.cfg text
+*.in text
+*.ini text
+*.pt text eol=lf
+*.py text eol=lf
+*.rst text eol=lf
+*.txt text eol=lf
