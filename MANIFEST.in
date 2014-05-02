@@ -1,0 +1,4 @@
+include *.txt
+graft doc
+graft sampleapp
+prune doc/.build

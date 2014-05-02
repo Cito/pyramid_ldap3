@@ -1,12 +1,12 @@
 .. _pyramid_ldap_api:
 
-:mod:`pyramid_ldap` API
------------------------
+:mod:`pyramid_ldap3` API
+------------------------
 
 Configuration
 ~~~~~~~~~~~~~
 
-.. automodule:: pyramid_ldap
+.. automodule:: pyramid_ldap3
 
 .. autofunction:: ldap_set_login_query
 
@@ -26,9 +26,8 @@ Usage
 
    .. attribute:: manager
 
-       An ``ldappool`` ConnectionManager instance that can be used to perform
-       arbitrary LDAP queries.  See
-       https://github.com/mozilla-services/ldappool
+       A ConnectionManager instance that can be used to perform
+       arbitrary LDAP queries.
 
 .. autofunction:: groupfinder
 

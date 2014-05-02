@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pyramid_ldap documentation build configuration file
+# pyramid_ldap3 documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing
 # dir.
@@ -58,7 +58,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General substitutions.
-project = 'pyramid_ldap'
+project = 'pyramid_ldap3'
 copyright = '2012, Agendaless Consulting <chrism@plope.com>'
 
 # The default replacements for |version| and |release|, also used in various
@@ -110,7 +110,7 @@ pygments_style = 'sphinx'
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
 html_theme = 'pyramid'
-html_theme_options = dict(github_url='https://github.com/Pylons/pyramid_ldap')
+html_theme_options = dict(github_url='https://github.com/Pylons/pyramid_ldap3')
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
@@ -193,9 +193,8 @@ htmlhelp_basename = 'atemplatedoc'
 # (source start file, target name, title,
 #  author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'pyramid_ldap.tex', 'pyramid_ldap Documentation',
-   'Repoze Developers', 'manual'),
-]
+    ('index', 'pyramid_ldap3.tex', 'pyramid_ldap3 Documentation',
+        'Repoze Developers', 'manual')]
 
 # The name of an image file (relative to this directory) to place at the
 # top of the title page.
