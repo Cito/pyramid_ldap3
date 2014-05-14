@@ -53,7 +53,7 @@ attempts to talk to an Active Directory server:
 
 .. code-block:: python
 
-    import ldap
+    import ldap3
 
     config = Configurator()
 
@@ -68,13 +68,13 @@ attempts to talk to an Active Directory server:
     config.ldap_set_login_query(
         base_dn='CN=Users,DC=example,DC=com',
         filter_tmpl='(sAMAccountName=%(login)s)',
-        scope = ldap.SCOPE_ONELEVEL,
+        scope = ldap3.SEARCH_SCOPE_SINGLE_LEVEL,
         )
 
     config.ldap_set_groups_query(
         base_dn='CN=Users,DC=example,DC=com',
         filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
-        scope = ldap.SCOPE_SUBTREE,
+        scope = ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
         cache_period = 600,
         )
 
@@ -177,7 +177,7 @@ Here's a small application which uses the ``pyramid_ldap3`` API:
                 return HTTPFound('/', headers=headers)
             else:
                 error = 'Invalid credentials'
-                
+
         return dict(
             login_url=url,
             login=login,
