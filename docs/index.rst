@@ -229,7 +229,10 @@ Here's a small application which uses the ``pyramid_ldap3`` API:
         config.add_route('login', '/login')
         config.add_route('logout', '/logout')
         config.scan('.')
-        return config.make_wsgi_app()
+
+        app = config.make_wsgi_app()
+        server = make_server('0.0.0.0', 8080, app)
+        server.serve_forever()
 
 This application sets up for an LDAP server on ``ldap.example.com`` using
 :func:`pyramid_ldap3.ldap_setup`.  It passes a ``bind`` DN and ``passwd`` for
