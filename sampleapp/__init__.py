@@ -32,7 +32,7 @@ def main(global_config, **settings):
         scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
         cache_period=0)
     config.ldap_set_groups_query(
-        'ou=rzuser,dc=ad,dc=uni-heidelberg,dc=de',
+        'CN=Users,DC=example,DC=com',
         #'(member:1.2.840.113556.1.4.1941:=%(userdn)s)',
         '(&(objectCategory=group)(member=%(userdn)s))',
         cache_period=60)
