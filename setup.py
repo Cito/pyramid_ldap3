@@ -18,7 +18,7 @@ testing_extras = ['nose', 'coverage']
 docs_extras = ['Sphinx']
 
 setup(name='pyramid_ldap3',
-      version='0.1',
+      version='0.2',
       description='pyramid_ldap3',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
@@ -30,7 +30,7 @@ setup(name='pyramid_ldap3',
         "Programming Language :: Python :: 3.4",
         "Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP",
         "License :: Repoze Public License"],
-      author='Chris McDonough',
+      author='Chris McDonough, Christoph Zwerschke',
       author_email='pylons-discuss@groups.google.com',
       url='http://pylonsproject.org',
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
