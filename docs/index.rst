@@ -18,10 +18,9 @@ Installation
 ``pyramid_ldap3`` depends on the
 `python3-ldap <http://pythonhosted.org/python3-ldap/>`_ package.
 
-You can install ``pyramid_ldap3`` using setuptools,
-e.g. (within a virtualenv)::
+You can install ``pyramid_ldap3`` using pip, e.g. (within a virtualenv)::
 
-  $ easy_install pyramid_ldap3
+  $ pip install pyramid_ldap3
 
 
 Setup
