@@ -113,7 +113,7 @@ pygments_style = 'sphinx'
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
 html_theme = 'pyramid'
-html_theme_options = dict(github_url='https://github.com/Pylons/pyramid_ldap3')
+html_theme_options = dict(github_url='https://github.com/Cito/pyramid_ldap3')
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths

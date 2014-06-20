@@ -302,7 +302,7 @@ useful for dropping the credentials.
 
 See the ``sampleapp`` sample application inside the ``pyramid_ldap3``
 distribution for a working example of the above application.  It can be
-viewed at https://github.com/Pylons/pyramid_ldap3/tree/master/sampleapp .
+viewed at https://github.com/Cito/pyramid_ldap3/tree/master/sampleapp .
 
 
 Logging
@@ -324,10 +324,10 @@ More Information
 Reporting Bugs / Development Versions
 -------------------------------------
 
-Visit http://github.com/Pylons/pyramid_ldap3 to download development or
+Visit http://github.com/Cito/pyramid_ldap3 to download development or
 tagged versions.
 
-Visit http://github.com/Pylons/pyramid_ldap3/issues to report bugs.
+Visit http://github.com/Cito/pyramid_ldap3/issues to report bugs.
 
 
 Indices and tables
