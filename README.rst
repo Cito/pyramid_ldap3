@@ -11,5 +11,3 @@ See the documentation at
 http://pyramid-ldap3.readthedocs.org/en/latest/
 for more information.
 
-This package will only work with Pyramid 1.3 and later.
-
