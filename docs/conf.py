@@ -75,6 +75,9 @@ release = version
 # Else, today_fmt is used as the format for a strftime call.
 today_fmt = '%B %d, %Y'
 
+# Default domain for the project.
+primary_domain = 'py'
+
 # List of documents that shouldn't be included in the build.
 #unused_docs = []
 
