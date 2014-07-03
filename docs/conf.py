@@ -65,7 +65,7 @@ copyright = '2012, Agendaless Consulting <chrism@plope.com>'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '0.2'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -74,6 +74,9 @@ release = version
 #today = ''
 # Else, today_fmt is used as the format for a strftime call.
 today_fmt = '%B %d, %Y'
+
+# Default domain for the project.
+primary_domain = 'py'
 
 # List of documents that shouldn't be included in the build.
 #unused_docs = []
@@ -110,7 +113,7 @@ pygments_style = 'sphinx'
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
 html_theme = 'pyramid'
-html_theme_options = dict(github_url='https://github.com/Pylons/pyramid_ldap3')
+html_theme_options = dict(github_url='https://github.com/Cito/pyramid_ldap3')
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
@@ -198,7 +201,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the
 # top of the title page.
-latex_logo = '.static/logo_hi.gif'
+# latex_logo = '.static/logo_hi.gif'
 
 # For "manual" documents, if this is true, then toplevel headings are
 # parts, not chapters.

@@ -5,13 +5,11 @@ pyramid_ldap3
 Overview
 --------
 
-:mod:``pyramid_ldap3`` provides LDAP authentication services for your Pyramid
+:mod:`pyramid_ldap3` provides LDAP authentication services for your Pyramid
 application.  It is a fork of the ``pyramid_ldap`` package with the goal
 of eliminating the dependency on ``python-ldap`` and ``ldappool``,
 replacing it with a dependency on ``python3-ldap``, which is a pure
 Python package that also supports Python 3.
-
-.. warning:: This package only works with Pyramid 1.3 and better.
 
 
 Installation
@@ -20,10 +18,9 @@ Installation
 ``pyramid_ldap3`` depends on the
 `python3-ldap <http://pythonhosted.org/python3-ldap/>`_ package.
 
-You can install ``pyramid_ldap3`` using setuptools,
-e.g. (within a virtualenv)::
+You can install ``pyramid_ldap3`` using pip, e.g. (within a virtualenv)::
 
-  $ easy_install pyramid_ldap3
+  $ pip install pyramid_ldap3
 
 
 Setup
@@ -307,7 +304,7 @@ useful for dropping the credentials.
 
 See the ``sampleapp`` sample application inside the ``pyramid_ldap3``
 distribution for a working example of the above application.  It can be
-viewed at https://github.com/Pylons/pyramid_ldap3/tree/master/sampleapp .
+viewed at https://github.com/Cito/pyramid_ldap3/tree/master/sampleapp .
 
 
 Logging
@@ -329,10 +326,10 @@ More Information
 Reporting Bugs / Development Versions
 -------------------------------------
 
-Visit http://github.com/Pylons/pyramid_ldap3 to download development or
+Visit http://github.com/Cito/pyramid_ldap3 to download development or
 tagged versions.
 
-Visit http://github.com/Pylons/pyramid_ldap3/issues to report bugs.
+Visit http://github.com/Cito/pyramid_ldap3/issues to report bugs.
 
 
 Indices and tables
