@@ -1,6 +1,13 @@
 Next release
 ------------
 
+
+0.2
+---
+
+- Made return values of pyramid_ldap3 compatible with pyramid_ldap.
+
+
 0.1
 ---
 
