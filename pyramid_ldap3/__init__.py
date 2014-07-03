@@ -25,45 +25,46 @@ class _LDAPQuery(object):
     Provides rudimentary in-RAM caching of query results.
     """
 
-    def __init__(self, base_dn, filter_tmpl, scope, cache_period):
+    def __init__(self, base_dn, filter_tmpl, scope, attributes, cache_period):
         self.base_dn = base_dn
         self.filter_tmpl = filter_tmpl
         self.scope = scope
+        self.attributes = attributes
         self.cache_period = cache_period
         self.last_timeslice = 0
         self.cache = {}
 
     def __str__(self):
         return ('base_dn={base_dn}, filter_tmpl={filter_tmpl}, '
-                'scope={scope}, cache_period={cache_period}'.format(**self.__dict__))
+                'scope={scope}, attributes={attributes}, '
+                'cache_period={cache_period}'.format(**self.__dict__))
 
     def query_cache(self, cache_key):
         now = time()
         ts = _timeslice(self.cache_period, now)
 
         if ts > self.last_timeslice:
-            logger.debug('dumping cache; now ts: %r, last_ts: %r', ts, self.last_timeslice)
+            logger.debug('dumping cache; now ts: %r, last_ts: %r',
+                ts, self.last_timeslice)
             self.cache = {}
             self.last_timeslice = ts
 
         return self.cache.get(cache_key)
 
     def execute(self, conn, **kw):
-        cache_key = (self.base_dn % kw, self.filter_tmpl % kw, self.scope)
+        cache_key = (self.base_dn % kw, self.filter_tmpl % kw)
 
         logger.debug('searching for %r', cache_key)
 
-        if self.cache_period:
-            result = self.query_cache(cache_key)
-            if result is None:
-                ret = conn.search(*cache_key)
-                result, ret = conn.get_response(ret)
-                self.cache[cache_key] = result
-            else:
-                logger.debug('result for %r retrieved from cache', cache_key)
-        else:
-            ret = conn.search(*cache_key)
+        result = self.query_cache(cache_key) if self.cache_period else None
+        if result is None:
+            ret = conn.search(search_scope=self.scope,
+                attributes=self.attributes, *cache_key)
             result, ret = conn.get_response(ret)
+            result = [(r['dn'], r['attributes']) for r in result]
+            self.cache[cache_key] = result
+        else:
+            logger.debug('result for %r retrieved from cache', cache_key)
 
         logger.debug('search result: %r', result)
 
@@ -160,10 +161,13 @@ class Connector(object):
                 'ldap_set_login_query was not called during setup')
 
         result = search.execute(conn, login=login, password=password)
-        try:
-            login_dn = result[0]['dn']
-        except (IndexError, KeyError, TypeError):
+
+        if not result:
             return None
+        if len(result) > 1:
+            logger.debug('Non-unique result for login %r', login)
+        result = result[0]
+        login_dn = result[0]
 
         try:
             conn = self.manager.connection(login_dn, password)
@@ -175,7 +179,7 @@ class Connector(object):
                 login, exc_info=True)
             return None
 
-        return result[0]
+        return result
 
     def user_groups(self, userdn):
         """Get the groups the user belongs to.
@@ -209,14 +213,17 @@ class Connector(object):
 
 
 def ldap_set_login_query(config, base_dn, filter_tmpl,
-        scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL, cache_period=0):
+        scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL, attributes=None,
+        cache_period=0):
     """Configurator method to set the LDAP login search.
 
     ``base_dn`` is the DN at which to begin the search.
     ``filter_tmpl`` is a string which can be used as an LDAP filter:
     it should contain the replacement value ``%(login)s``.
-    Scope is any valid LDAP scope value
+    ``scope`` is any valid LDAP scope value
     (e.g. ``ldap3.SEARCH_SCOPE_SINGLE_LEVEL``).
+    ``attributes`` is a list of attributes that shall be returned
+    (can also be set to None or ``ldap3.ALL_ATTRIBUTES``).
     ``cache_period`` is the number of seconds to cache login search results;
     if it is 0, login search results will not be cached.
 
@@ -231,7 +238,7 @@ def ldap_set_login_query(config, base_dn, filter_tmpl,
     a valid login.
     """
 
-    query = _LDAPQuery(base_dn, filter_tmpl, scope, cache_period)
+    query = _LDAPQuery(base_dn, filter_tmpl, scope, attributes, cache_period)
 
     def register():
         config.registry.ldap_login_query = query
@@ -246,14 +253,17 @@ def ldap_set_login_query(config, base_dn, filter_tmpl,
 
 
 def ldap_set_groups_query(config, base_dn, filter_tmpl,
-        scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE, cache_period=0):
+        scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE, attributes=None,
+        cache_period=0):
     """ Configurator method to set the LDAP groups search.
 
     ``base_dn`` is the DN at which to begin the search.
     ``filter_tmpl`` is a string which can be used as an LDAP filter:
     it should contain the replacement value ``%(userdn)s``.
-    Scope is any valid LDAP scope value
-    (e.g. ``ldap3.SEARCH_SCOPE_WHOLE_SUBTREE``).
+    ``scope`` is any valid LDAP scope value
+    (e.g. ``ldap3.SEARCH_SCOPE_SINGLE_LEVEL``).
+    ``attributes`` is a list of attributes that shall be returned
+    (can also be set to None or ``ldap3.ALL_ATTRIBUTES``).
     ``cache_period`` is the number of seconds to cache groups search results;
     if it is 0, groups search results will not be cached.
 
@@ -266,7 +276,7 @@ def ldap_set_groups_query(config, base_dn, filter_tmpl,
 
     """
 
-    query = _LDAPQuery(base_dn, filter_tmpl, scope, cache_period)
+    query = _LDAPQuery(base_dn, filter_tmpl, scope, attributes, cache_period)
 
     def register():
         config.registry.ldap_groups_query = query
@@ -276,6 +286,7 @@ def ldap_set_groups_query(config, base_dn, filter_tmpl,
         None,
         str(query),
         'pyramid_ldap3 groups query')
+
     config.action('ldap-set-groups-query', register, introspectables=(intr,))
 
 
@@ -327,6 +338,12 @@ def get_ldap_connector(request):
     return connector
 
 
+def get_groups(userdn, request):
+    """Raw groupfinder function returning the complete group query result."""
+    connector = get_ldap_connector(request)
+    return connector.user_groups(userdn)
+
+
 def groupfinder(userdn, request):
     """Groupfinder function for Pyramid.
 
@@ -335,11 +352,10 @@ def groupfinder(userdn, request):
     belonging to the user specified by ``userdn`` to as a principal
     in the list of results; if the user does not exist, it returns None.
     """
-    connector = get_ldap_connector(request)
-    group_list = connector.user_groups(userdn)
-    if group_list is None:
-        return None
-    return [group['dn'] for group in group_list]
+    groups = get_groups(userdn, request)
+    if groups:
+        groups = [r[0] for r in groups]
+    return groups
 
 
 def includeme(config):

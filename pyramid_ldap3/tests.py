@@ -17,6 +17,26 @@ class Test_includeme(unittest.TestCase):
              ['ldap_setup', 'ldap_set_login_query', 'ldap_set_groups_query'])
         
 
+class Test_get_groups(unittest.TestCase):
+
+    def _callFUT(self, dn, request):
+        from pyramid_ldap3 import get_groups
+        return get_groups(dn, request)
+
+    def test_no_group_list(self):
+        request = testing.DummyRequest()
+        request.ldap_connector = DummyLDAPConnector('testdn', None)
+        result = self._callFUT('testdn', request)
+        self.assertTrue(result is None)
+
+    def test_with_group_list(self):
+        request = testing.DummyRequest()
+        request.ldap_connector = DummyLDAPConnector(
+            'testdn', [('a', 'b')])
+        result = self._callFUT('testdn', request)
+        self.assertEqual(result, [('a', 'b')])
+
+
 class Test_groupfinder(unittest.TestCase):
 
     def _callFUT(self, dn, request):
@@ -27,12 +47,12 @@ class Test_groupfinder(unittest.TestCase):
         request = testing.DummyRequest()
         request.ldap_connector = DummyLDAPConnector('testdn', None)
         result = self._callFUT('testdn', request)
-        self.assertEqual(result, None)
+        self.assertTrue(result is None)
 
     def test_with_group_list(self):
         request = testing.DummyRequest()
         request.ldap_connector = DummyLDAPConnector(
-            'testdn', [{'dn': 'groupdn', 'more': None}])
+            'testdn', [('groupdn', None)])
         result = self._callFUT('testdn', request)
         self.assertEqual(result, ['groupdn'])
 
@@ -182,31 +202,29 @@ class TestConnector(unittest.TestCase):
         registry = Dummy()
         registry.ldap_login_query = DummySearch([])
         inst = self._makeOne(registry, manager)
-        self.assertEqual(inst.authenticate(None, None), None)
+        self.assertTrue(inst.authenticate(None, None) is None)
 
     def test_authenticate_empty_password(self):
         manager = DummyManager()
         registry = Dummy()
-        registry.ldap_login_query = DummySearch([{'dn': 'a', 'more': 'b'}])
+        registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
-        self.assertEqual(inst.authenticate('foo', ''), None)
+        self.assertTrue(inst.authenticate('foo', '') is None)
 
     def test_authenticate_search_returns_one_result(self):
         manager = DummyManager()
         registry = Dummy()
-        registry.ldap_login_query = DummySearch(
-            [{'dn': 'a', 'more': 'b'}])
+        registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
-        self.assertEqual(inst.authenticate(None, None),
-            {'dn': 'a', 'more': 'b'})
+        self.assertEqual(inst.authenticate(None, None), ('a', 'b'))
 
     def test_authenticate_search_bind_raises(self):
         from pyramid_ldap3 import ldap3
         manager = DummyManager([None, ldap3.LDAPException])
         registry = Dummy()
-        registry.ldap_login_query = DummySearch([{'dn': 'a', 'more': 'b'}])
+        registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
-        self.assertEqual(inst.authenticate(None, None), None)
+        self.assertTrue(inst.authenticate(None, None) is None)
 
     def test_user_groups_no_ldap_groups_query(self):
         manager = DummyManager()
@@ -216,60 +234,67 @@ class TestConnector(unittest.TestCase):
     def test_user_groups_search_returns_result(self):
         manager = DummyManager()
         registry = Dummy()
-        registry.ldap_groups_query = DummySearch([{'dn': 'a', 'more': 'b'}])
+        registry.ldap_groups_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
-        self.assertEqual(inst.user_groups(None), [{'dn': 'a', 'more': 'b'}])
+        self.assertEqual(inst.user_groups(None), [('a', 'b')])
 
     def test_user_groups_execute_raises(self):
         from pyramid_ldap3 import ldap3
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_groups_query = DummySearch(
-            [{'dn': 'a', 'more': 'b'}], ldap3.LDAPException)
+            [('a', 'b')], ldap3.LDAPException)
         inst = self._makeOne(registry, manager)
-        self.assertEqual(inst.user_groups(None), None)
+        self.assertTrue(inst.user_groups(None) is None)
 
 
 class Test_LDAPQuery(unittest.TestCase):
 
-    def _makeOne(self, base_dn, filter_tmpl, scope, cache_period):
+    def _makeOne(self, base_dn, filter_tmpl, scope, attributes, cache_period):
         from pyramid_ldap3 import _LDAPQuery
-        return _LDAPQuery(base_dn, filter_tmpl, scope, cache_period)
+        return _LDAPQuery(
+            base_dn, filter_tmpl, scope, attributes, cache_period)
 
     def test_query_cache_no_rollover(self):
-        inst = self._makeOne(None, None, None, 1)
+        inst = self._makeOne(None, None, None, None, 1)
         inst.last_timeslice = 1 << 31
         inst.cache['foo'] = 'bar'
         self.assertEqual(inst.query_cache('foo'), 'bar')
 
     def test_query_cache_with_rollover(self):
-        inst = self._makeOne(None, None, None, 1)
+        inst = self._makeOne(None, None, None, None, 1)
         inst.cache['foo'] = 'bar'
-        self.assertEqual(inst.query_cache('foo'), None)
+        self.assertTrue(inst.query_cache('foo') is None)
         self.assertEqual(inst.cache, {})
         self.assertNotEqual(inst.last_timeslice, 0)
 
     def test_execute_no_cache_period(self):
-        inst = self._makeOne('%(login)s', '%(login)s', None, 0)
-        conn = DummyConnection({'dn': 'abc'})
+        inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 0)
+        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
         result = inst.execute(conn, login='foo')
-        self.assertEqual(result, {'dn': 'abc'})
-        self.assertEqual(conn.args, ('foo', 'foo', None))
+        self.assertEqual(result, [('a', {'b': 'c'})])
+        self.assertEqual(conn.args, ('DN=Org', '(cn=foo)'))
+        self.assertEqual(conn.kwargs,
+            {'attributes': 'attrs', 'search_scope': 'scope'})
 
     def test_execute_with_cache_period_miss(self):
-        inst = self._makeOne('%(login)s', '%(login)s', None, 1)
-        conn = DummyConnection({'dn': 'abc'})
+        inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 1)
+        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
         result = inst.execute(conn, login='foo')
-        self.assertEqual(result, {'dn': 'abc'})
-        self.assertEqual(conn.args, ('foo', 'foo', None))
+        self.assertEqual(result, [('a', {'b': 'c'})])
+        self.assertEqual(conn.args, ('DN=Org', '(cn=foo)'))
+        self.assertEqual(conn.kwargs, {
+            'attributes': 'attrs', 'search_scope': 'scope'})
 
     def test_execute_with_cache_period_hit(self):
-        inst = self._makeOne('%(login)s', '%(login)s', None, 1)
+        inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 1)
         inst.last_timeslice = 1 << 31
-        inst.cache[('foo', 'foo', None)] = {'dn': 'def'}
-        conn = DummyConnection({'dn': 'abc'})
+        inst.cache[('DN=Org', '(cn=foo)')] = ('d', {'e': 'f'})
+        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
         result = inst.execute(conn, login='foo')
-        self.assertEqual(result, {'dn': 'def'})
+        self.assertEqual(result, ('d', {'e': 'f'}))
+        self.assertTrue(conn.args is None)
+        self.assertTrue(conn.kwargs is None)
 
 
 class DummyLDAPConnector(object):
@@ -358,9 +383,11 @@ class DummyConnection(object):
         self.result = result
         self.result_id = 0
         self.args = None
+        self.kwargs = None
 
-    def search(self, *args):
+    def search(self, *args, **kwargs):
         self.args = args
+        self.kwargs = kwargs
         self.result_id += 1
         return self.result_id
 

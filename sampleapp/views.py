@@ -32,7 +32,7 @@ def login(request):
         connector = get_ldap_connector(request)
         data = connector.authenticate(login, password)
         if data is not None:
-            dn = data['dn']
+            dn = data[0]
             headers = remember(request, dn)
             return HTTPFound('/', headers=headers)
         error = 'Invalid credentials'
