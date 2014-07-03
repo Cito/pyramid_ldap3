@@ -197,7 +197,7 @@ class TestConnector(unittest.TestCase):
         inst = self._makeOne(None, manager)
         self.assertRaises(ConfigurationError, inst.authenticate, None, None)
 
-    def test_authenticate_search_returns_non_one_result(self):
+    def test_authenticate_search_returns_no_result(self):
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_login_query = DummySearch([])
@@ -217,6 +217,13 @@ class TestConnector(unittest.TestCase):
         registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
         self.assertEqual(inst.authenticate(None, None), ('a', 'b'))
+
+    def test_authenticate_search_returns_multiple_results(self):
+        manager = DummyManager()
+        registry = Dummy()
+        registry.ldap_login_query = DummySearch([('a', 'b'), ('a', 'c')])
+        inst = self._makeOne(registry, manager)
+        self.assertTrue(inst.authenticate(None, None) is None)
 
     def test_authenticate_search_bind_raises(self):
         from pyramid_ldap3 import ldap3

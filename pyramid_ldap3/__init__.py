@@ -162,10 +162,8 @@ class Connector(object):
 
         result = search.execute(conn, login=login, password=password)
 
-        if not result:
+        if not result or len(result) > 1:
             return None
-        if len(result) > 1:
-            logger.debug('Non-unique result for login %r', login)
         result = result[0]
         login_dn = result[0]
 
@@ -175,8 +173,8 @@ class Connector(object):
             conn.bind()
             conn.close()
         except ldap3.LDAPException:
-            logger.debug('Exception in authenticate with login %r',
-                login, exc_info=True)
+            logger.debug('Exception in authenticate with login %r', login,
+                exc_info=True)
             return None
 
         return result
