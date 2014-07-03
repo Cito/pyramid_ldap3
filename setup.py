@@ -19,7 +19,7 @@ docs_extras = ['Sphinx']
 
 setup(
     name='pyramid_ldap3',
-    version='0.3',
+    version='0.2.1',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[

@@ -2,6 +2,12 @@ Next release
 ------------
 
 
+0.2.1
+------
+
+- Use implicit binding and proper unbinding of connections.
+
+
 0.2
 ---
 
