@@ -112,13 +112,15 @@ class ConnectionManager(object):
     def connection(self, user=None, password=None):
         if user:
             conn = self.ldap3.Connection(
-                self.server, user=user, password=password, auto_bind=True,
-                client_strategy=ldap3.STRATEGY_SYNC, read_only=True)
+                self.server, user=user, password=password,
+                client_strategy=ldap3.STRATEGY_SYNC,
+                auto_bind=True, lazy=False, read_only=True)
         else:
             conn = self.ldap3.Connection(
                 self.server, user=self.bind, password=self.passwd,
-                auto_bind=True, client_strategy=self.strategy, read_only=True,
-                pool_name=self.pool_name, pool_size=self.pool_size)
+                client_strategy=self.strategy,
+                pool_name=self.pool_name, pool_size=self.pool_size,
+                auto_bind=True, lazy=False, read_only=True)
         return conn
 
 
@@ -168,10 +170,7 @@ class Connector(object):
         login_dn = result[0]
 
         try:
-            conn = self.manager.connection(login_dn, password)
-            conn.open()
-            conn.bind()
-            conn.close()
+            self.manager.connection(login_dn, password).unbind()
         except ldap3.LDAPException:
             logger.debug('Exception in authenticate with login %r', login,
                 exc_info=True)

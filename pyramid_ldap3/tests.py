@@ -353,19 +353,15 @@ class DummyManager(object):
             e = self.with_errors.pop(0)
             if e is not None:
                 raise e
+        self.bind()
         return self
-
-    def open(self):
-        self.status = 'opened'
-        return
 
     def bind(self):
         self.status = 'bound'
         return
 
-    def close(self):
-        self.status = 'closed'
-        return
+    def unbind(self):
+        self.status = 'unbound'
 
 
 class DummySearch(object):
@@ -414,8 +410,8 @@ class DummyLdap3Server(object):
 class DummyLdap3Connection(object):
 
     def __init__(self, server, user=None, password=None,
-            auto_bind=True, client_strategy=None, read_only=True,
-            pool_name='oyramid_ldap3', pool_size=10):
+            auto_bind=False, lazy=False, read_only=False,
+            client_strategy=None, pool_name='oyramid_ldap3', pool_size=10):
         self.server = server
         self.user = user
         self.password = password
