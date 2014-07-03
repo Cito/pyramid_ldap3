@@ -59,21 +59,18 @@ attempts to talk to an Active Directory server:
     config.ldap_setup(
         'ldap://ldap.example.com',
         bind='CN=ldap user,CN=Users,DC=example,DC=com',
-        passwd='ld@pu5er'
-        )
+        passwd='ld@pu5er')
 
     config.ldap_set_login_query(
         base_dn='CN=Users,DC=example,DC=com',
         filter_tmpl='(sAMAccountName=%(login)s)',
-        scope = ldap3.SEARCH_SCOPE_SINGLE_LEVEL,
-        )
+        scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
 
     config.ldap_set_groups_query(
         base_dn='CN=Users,DC=example,DC=com',
         filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
-        scope = ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
-        cache_period = 600,
-        )
+        scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
+        cache_period=600)
 
 
 Configurator Methods
@@ -214,13 +211,13 @@ Here's a small application which uses the ``pyramid_ldap3`` API:
         config.ldap_set_login_query(
             base_dn='CN=Users,DC=example,DC=com',
             filter_tmpl='(sAMAccountName=%(login)s)',
-            scope = ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
+            scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
 
         config.ldap_set_groups_query(
             base_dn='CN=Users,DC=example,DC=com',
             filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
-            scope = ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
-            cache_period = 600)
+            scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
+            cache_period=600)
 
         config.add_route('root', '/')
         config.add_route('login', '/login')
