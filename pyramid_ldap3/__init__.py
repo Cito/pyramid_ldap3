@@ -61,8 +61,11 @@ class _LDAPQuery(object):
             ret = conn.search(search_scope=self.scope,
                 attributes=self.attributes, *cache_key)
             result, ret = conn.get_response(ret)
-            result = [(r['dn'], r['attributes']) for r in result]
-            self.cache[cache_key] = result
+            if result is None:
+                result = []
+            else:
+                result = [(r['dn'], r['attributes']) for r in result]
+                self.cache[cache_key] = result
         else:
             logger.debug('result for %r retrieved from cache', cache_key)
 
