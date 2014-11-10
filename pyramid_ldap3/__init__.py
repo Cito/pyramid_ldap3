@@ -64,7 +64,8 @@ class _LDAPQuery(object):
             if result is None:
                 result = []
             else:
-                result = [(r['dn'], r['attributes']) for r in result]
+                result = [(r['dn'], r['attributes']) for r in result
+                          if 'dn' in r]
                 self.cache[cache_key] = result
         else:
             logger.debug('result for %r retrieved from cache', cache_key)
