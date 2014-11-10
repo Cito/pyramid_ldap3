@@ -204,7 +204,9 @@ class Connector(object):
             raise ConfigurationError(
                 'set_ldap_groups_query was not called during setup')
         try:
-            result = search.execute(conn, userdn=userdn)
+            result = search.execute(
+                conn,
+                userdn=ldap3.utils.conv.escape_bytes(userdn))
         except ldap3.LDAPException:
             logger.debug('Exception in user_groups with userdn %r', userdn,
                 exc_info=True)
