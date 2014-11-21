@@ -64,7 +64,8 @@ class _LDAPQuery(object):
             if result is None:
                 result = []
             else:
-                result = [(r['dn'], r['attributes']) for r in result]
+                result = [(r['dn'], r['attributes']) for r in result
+                          if 'dn' in r]
                 self.cache[cache_key] = result
         else:
             logger.debug('result for %r retrieved from cache', cache_key)
@@ -203,7 +204,9 @@ class Connector(object):
             raise ConfigurationError(
                 'set_ldap_groups_query was not called during setup')
         try:
-            result = search.execute(conn, userdn=userdn)
+            result = search.execute(
+                conn,
+                userdn=ldap3.utils.conv.escape_bytes(userdn))
         except ldap3.LDAPException:
             logger.debug('Exception in user_groups with userdn %r', userdn,
                 exc_info=True)
