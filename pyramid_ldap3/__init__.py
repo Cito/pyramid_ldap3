@@ -5,8 +5,6 @@ from time import time
 
 from pyramid.exceptions import ConfigurationError
 
-logger = logging.getLogger(__name__)
-
 try:
     import ldap3
 except ImportError:  # pragma: no cover
@@ -17,8 +15,9 @@ except ImportError:  # pragma: no cover
         SEARCH_SCOPE_SINGLE_LEVEL = None
         SEARCH_SCOPE_WHOLE_SUBTREE = None
         STRATEGY_REUSABLE_THREADED = None
-    logger.error('ldap3 module not found')
     ldap3 = _Ldap3Module()
+
+logger = logging.getLogger(__name__)
 
 
 _ord = ord if str is bytes else int
@@ -109,29 +108,36 @@ class ConnectionManager(object):
     # noinspection PyShadowingNames
     def __init__(
             self, uri, bind=None, passwd=None, tls=None,
-            use_pool=True, pool_size=10, ldap3=ldap3):
+            use_pool=True, pool_size=10, pool_lifetime=None, ldap3=ldap3):
         self.ldap3 = ldap3
-        self.uri = uri
-        try:
-            schema, host = uri.split('://', 1)
-        except ValueError:
-            schema, host = 'ldap', uri
-        use_ssl = schema == 'ldaps'
-        try:
-            host, port = host.split(':', 1)
-            port = int(port)
-        except ValueError:
-            host, port = host, 636 if use_ssl else 389
-        self.server = self.ldap3.Server(
-            host, port=port, use_ssl=use_ssl, tls=tls)
+        uris = uri if isinstance(uri, (list, tuple)) else uri.split()
+        self.uri = uri[0] if len(uris) == 1 else uris
+        servers = []
+        for uri in uris:
+            try:
+                schema, host = uri.split('://', 1)
+            except ValueError:
+                schema, host = 'ldap', uri
+            use_ssl = schema == 'ldaps'
+            try:
+                host, port = host.split(':', 1)
+                port = int(port)
+            except ValueError:
+                host, port = host, 636 if use_ssl else 389
+            server = self.ldap3.Server(
+                host, port=port, use_ssl=use_ssl, tls=tls)
+            servers.append(server)
+        self.server = servers[
+            0] if len(servers) == 1 else self.ldap3.ServerPool(servers)
         self.bind, self.passwd = bind, passwd
         if use_pool:
             self.strategy = ldap3.STRATEGY_REUSABLE_THREADED
             self.pool_name = 'pyramid_ldap3'
             self.pool_size = pool_size
+            self.pool_lifetime = pool_lifetime
         else:
             self.strategy = ldap3.STRATEGY_ASYNC_THREADED
-            self.pool_name = self.pool_size = None
+            self.pool_name = self.pool_size = self.pool_lifetime = None
 
     def __str__(self):
         return ('uri={uri}, bind={bind}/{passwd},pool={pool_size}'.format(
@@ -148,6 +154,7 @@ class ConnectionManager(object):
                 self.server, user=self.bind, password=self.passwd,
                 client_strategy=self.strategy,
                 pool_name=self.pool_name, pool_size=self.pool_size,
+                pool_lifetime=self.pool_lifetime,
                 auto_bind=True, lazy=False, read_only=True)
         return conn
 
@@ -324,7 +331,7 @@ def ldap_setup(
         bind=None, passwd=None, use_tls=False, use_pool=True, pool_size=10):
     """Configurator method to set up an LDAP connection pool.
 
-    - **uri**: ldap server uri **[mandatory]**
+    - **uri**: ldap server uri(s) **[mandatory]**
     - **bind**: default bind that will be used to bind a connector.
       **default: None**
     - **passwd**: default password that will be used to bind a connector.
