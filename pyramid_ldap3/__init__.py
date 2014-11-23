@@ -19,6 +19,23 @@ except ImportError:  # pragma: no cover
 logger = logging.getLogger(__name__)
 
 
+_ord = ord if str is bytes else int
+
+_escape_for_search = {
+    '*': '\\2A', '(': '\\28', ')': '\\29', '\\': '\\5C', '\0': '\\00'}
+
+
+def escape_for_search(s):
+    if not s:
+        return s
+    if isinstance(s, bytes):
+        try:
+            s = s.decode('utf-8')
+        except UnicodeDecodeError:
+            return ''.join('\\%02x' % _ord(b) for b in s)
+    return ''.join((_escape_for_search.get(c, c) for c in s))
+
+
 class _LDAPQuery(object):
     """Represents an LDAP query.
 
@@ -84,6 +101,7 @@ def _timeslice(period, when=None):
 class ConnectionManager(object):
     """Provides API methods for managing LDAP connections."""
 
+    # noinspection PyShadowingNames
     def __init__(self, uri, bind=None, passwd=None, tls=None,
             use_pool=True, pool_size=10, ldap3=ldap3):
         self.ldap3 = ldap3
@@ -204,9 +222,7 @@ class Connector(object):
             raise ConfigurationError(
                 'set_ldap_groups_query was not called during setup')
         try:
-            result = search.execute(
-                conn,
-                userdn=ldap3.utils.conv.escape_bytes(userdn))
+            result = search.execute(conn, userdn=escape_for_search(userdn))
         except ldap3.LDAPException:
             logger.debug('Exception in user_groups with userdn %r', userdn,
                 exc_info=True)

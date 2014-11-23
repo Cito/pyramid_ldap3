@@ -254,6 +254,21 @@ class TestConnector(unittest.TestCase):
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.user_groups(None) is None)
 
+    def test_user_groups_search_escapes(self):
+        manager = DummyManager()
+        registry = Dummy()
+        search = DummySearch([('a', 'b')])
+        registry.ldap_groups_query = search
+        inst = self._makeOne(registry, manager)
+        self.assertEqual(inst.user_groups('abc123'), [('a', 'b')])
+        self.assertEqual(search.kw['userdn'], 'abc123')
+        self.assertEqual(inst.user_groups('(abc*123)'), [('a', 'b')])
+        self.assertEqual(search.kw['userdn'], '\\28abc\\2A123\\29')
+        self.assertEqual(inst.user_groups(b'ab\xc3\xa7123'), [('a', 'b')])
+        self.assertEqual(search.kw['userdn'].encode('latin-1'), b'ab\xe7123')
+        self.assertEqual(inst.user_groups(b'ab\xe7123'), [('a', 'b')])
+        self.assertEqual(search.kw['userdn'], '\\61\\62\\e7\\31\\32\\33')
+
 
 class Test_LDAPQuery(unittest.TestCase):
 
