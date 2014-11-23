@@ -1,4 +1,5 @@
 include *.txt
-graft doc
+prune .tox
 graft sampleapp
-prune doc/.build
+graft docs
+prune docs/_build
