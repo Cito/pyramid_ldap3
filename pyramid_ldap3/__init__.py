@@ -5,18 +5,20 @@ from time import time
 
 from pyramid.exceptions import ConfigurationError
 
+logger = logging.getLogger(__name__)
+
 try:
     import ldap3
 except ImportError:  # pragma: no cover
     # this is for benefit of being able to build the docs on rtd.org
-    class ldap3(object):
+    class _Ldap3Module(object):
         LDAPException = Exception
         SEARCH_SCOPE_BASE_OBJECT = None
         SEARCH_SCOPE_SINGLE_LEVEL = None
         SEARCH_SCOPE_WHOLE_SUBTREE = None
         STRATEGY_REUSABLE_THREADED = None
-
-logger = logging.getLogger(__name__)
+    logger.error('ldap3 module not found')
+    ldap3 = _Ldap3Module()
 
 
 _ord = ord if str is bytes else int
