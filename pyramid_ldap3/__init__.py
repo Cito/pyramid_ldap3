@@ -28,6 +28,7 @@ _escape_for_search = {
 
 
 def escape_for_search(s):
+    """Escape search string for LDAP according to RFC4515 when necessary."""
     if not s:
         return s
     if isinstance(s, bytes):
@@ -63,7 +64,8 @@ class _LDAPQuery(object):
         ts = _timeslice(self.cache_period, now)
 
         if ts > self.last_timeslice:
-            logger.debug('dumping cache; now ts: %r, last_ts: %r',
+            logger.debug(
+                'dumping cache; now ts: %r, last_ts: %r',
                 ts, self.last_timeslice)
             self.cache = {}
             self.last_timeslice = ts
@@ -77,7 +79,8 @@ class _LDAPQuery(object):
 
         result = self.query_cache(cache_key) if self.cache_period else None
         if result is None:
-            ret = conn.search(search_scope=self.scope,
+            ret = conn.search(
+                search_scope=self.scope,
                 attributes=self.attributes, *cache_key)
             result, ret = conn.get_response(ret)
             if result is None:
@@ -104,7 +107,8 @@ class ConnectionManager(object):
     """Provides API methods for managing LDAP connections."""
 
     # noinspection PyShadowingNames
-    def __init__(self, uri, bind=None, passwd=None, tls=None,
+    def __init__(
+            self, uri, bind=None, passwd=None, tls=None,
             use_pool=True, pool_size=10, ldap3=ldap3):
         self.ldap3 = ldap3
         self.uri = uri
@@ -196,7 +200,8 @@ class Connector(object):
         try:
             self.manager.connection(login_dn, password).unbind()
         except ldap3.LDAPException:
-            logger.debug('Exception in authenticate with login %r', login,
+            logger.debug(
+                'Exception in authenticate with login %r', login,
                 exc_info=True)
             return None
 
@@ -226,14 +231,16 @@ class Connector(object):
         try:
             result = search.execute(conn, userdn=escape_for_search(userdn))
         except ldap3.LDAPException:
-            logger.debug('Exception in user_groups with userdn %r', userdn,
+            logger.debug(
+                'Exception in user_groups with userdn %r', userdn,
                 exc_info=True)
             return None
 
         return result
 
 
-def ldap_set_login_query(config, base_dn, filter_tmpl,
+def ldap_set_login_query(
+        config, base_dn, filter_tmpl,
         scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL, attributes=None,
         cache_period=0):
     """Configurator method to set the LDAP login search.
@@ -273,7 +280,8 @@ def ldap_set_login_query(config, base_dn, filter_tmpl,
     config.action('ldap-set-login-query', register, introspectables=(intr,))
 
 
-def ldap_set_groups_query(config, base_dn, filter_tmpl,
+def ldap_set_groups_query(
+        config, base_dn, filter_tmpl,
         scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE, attributes=None,
         cache_period=0):
     """ Configurator method to set the LDAP groups search.
@@ -311,7 +319,8 @@ def ldap_set_groups_query(config, base_dn, filter_tmpl,
     config.action('ldap-set-groups-query', register, introspectables=(intr,))
 
 
-def ldap_setup(config, uri,
+def ldap_setup(
+        config, uri,
         bind=None, passwd=None, use_tls=False, use_pool=True, pool_size=10):
     """Configurator method to set up an LDAP connection pool.
 

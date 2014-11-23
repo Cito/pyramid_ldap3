@@ -4,7 +4,7 @@ from pyramid import testing
 from pyramid.exceptions import ConfigurationError
 
 
-class Test_includeme(unittest.TestCase):
+class TestIncludeme(unittest.TestCase):
 
     def _callFUT(self, config):
         from pyramid_ldap3 import includeme
@@ -13,11 +13,11 @@ class Test_includeme(unittest.TestCase):
     def test_it(self):
         config = DummyConfig()
         self._callFUT(config)
-        self.assertEqual(config.directives,
-             ['ldap_setup', 'ldap_set_login_query', 'ldap_set_groups_query'])
+        self.assertEqual(config.directives, [
+            'ldap_setup', 'ldap_set_login_query', 'ldap_set_groups_query'])
         
 
-class Test_get_groups(unittest.TestCase):
+class TestGetGroups(unittest.TestCase):
 
     def _callFUT(self, dn, request):
         from pyramid_ldap3 import get_groups
@@ -25,19 +25,18 @@ class Test_get_groups(unittest.TestCase):
 
     def test_no_group_list(self):
         request = testing.DummyRequest()
-        request.ldap_connector = DummyLDAPConnector('testdn', None)
+        request.ldap_connector = DummyLDAPConnector(None)
         result = self._callFUT('testdn', request)
         self.assertTrue(result is None)
 
     def test_with_group_list(self):
         request = testing.DummyRequest()
-        request.ldap_connector = DummyLDAPConnector(
-            'testdn', [('a', 'b')])
+        request.ldap_connector = DummyLDAPConnector([('a', 'b')])
         result = self._callFUT('testdn', request)
         self.assertEqual(result, [('a', 'b')])
 
 
-class Test_groupfinder(unittest.TestCase):
+class TestGroupfinder(unittest.TestCase):
 
     def _callFUT(self, dn, request):
         from pyramid_ldap3 import groupfinder
@@ -45,19 +44,18 @@ class Test_groupfinder(unittest.TestCase):
 
     def test_no_group_list(self):
         request = testing.DummyRequest()
-        request.ldap_connector = DummyLDAPConnector('testdn', None)
+        request.ldap_connector = DummyLDAPConnector(None)
         result = self._callFUT('testdn', request)
         self.assertTrue(result is None)
 
     def test_with_group_list(self):
         request = testing.DummyRequest()
-        request.ldap_connector = DummyLDAPConnector(
-            'testdn', [('groupdn', None)])
+        request.ldap_connector = DummyLDAPConnector([('groupdn', None)])
         result = self._callFUT('testdn', request)
         self.assertEqual(result, ['groupdn'])
 
 
-class Test_get_ldap_connector(unittest.TestCase):
+class TestGetLdapConnector(unittest.TestCase):
 
     def _callFUT(self, request):
         from pyramid_ldap3 import get_ldap_connector
@@ -74,7 +72,7 @@ class Test_get_ldap_connector(unittest.TestCase):
         self.assertEqual(result, True)
 
 
-class Test_ldap_setup(unittest.TestCase):
+class TestLdapSetup(unittest.TestCase):
 
     def _callFUT(self, config, uri, **kw):
         from pyramid_ldap3 import ldap_setup
@@ -90,7 +88,7 @@ class Test_ldap_setup(unittest.TestCase):
         self.assertEqual(config.prop(request).__class__, Connector)
 
 
-class Test_ldap_set_groups_query(unittest.TestCase):
+class TestLdapSetGroupsQuery(unittest.TestCase):
 
     def _callFUT(self, config, base_dn, filter_tmpl, **kw):
         from pyramid_ldap3 import ldap_set_groups_query
@@ -100,14 +98,16 @@ class Test_ldap_set_groups_query(unittest.TestCase):
         import ldap3
         config = DummyConfig()
         self._callFUT(config, 'dn', 'tmpl')
-        self.assertEqual(config.registry.ldap_groups_query.base_dn, 'dn')
-        self.assertEqual(config.registry.ldap_groups_query.filter_tmpl, 'tmpl')
-        self.assertEqual(config.registry.ldap_groups_query.scope,
-            ldap3.SEARCH_SCOPE_WHOLE_SUBTREE)
-        self.assertEqual(config.registry.ldap_groups_query.cache_period, 0)
+        ldap_groups_query = getattr(config.registry, 'ldap_groups_query', None)
+        self.assertFalse(ldap_groups_query is None)
+        self.assertEqual(ldap_groups_query.base_dn, 'dn')
+        self.assertEqual(ldap_groups_query.filter_tmpl, 'tmpl')
+        self.assertEqual(
+            ldap_groups_query.scope, ldap3.SEARCH_SCOPE_WHOLE_SUBTREE)
+        self.assertEqual(ldap_groups_query.cache_period, 0)
 
 
-class Test_ldap_set_login_query(unittest.TestCase):
+class TestLdapSetLoginQuery(unittest.TestCase):
 
     def _callFUT(self, config, base_dn, filter_tmpl, **kw):
         from pyramid_ldap3 import ldap_set_login_query
@@ -117,21 +117,25 @@ class Test_ldap_set_login_query(unittest.TestCase):
         from pyramid_ldap3 import ldap3
         config = DummyConfig()
         self._callFUT(config, 'dn', 'tmpl')
-        self.assertEqual(config.registry.ldap_login_query.base_dn, 'dn')
-        self.assertEqual(config.registry.ldap_login_query.filter_tmpl, 'tmpl')
-        self.assertEqual(config.registry.ldap_login_query.scope,
-            ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
-        self.assertEqual(config.registry.ldap_login_query.cache_period, 0)
+        ldap_login_query = getattr(config.registry, 'ldap_login_query', None)
+        self.assertFalse(ldap_login_query is None)
+        self.assertEqual(ldap_login_query.base_dn, 'dn')
+        self.assertEqual(ldap_login_query.filter_tmpl, 'tmpl')
+        self.assertEqual(
+            ldap_login_query.scope, ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
+        self.assertEqual(ldap_login_query.cache_period, 0)
 
 
 class TestConnectionManager(unittest.TestCase):
 
-    def _makeOne(self, uri, bind=None, passwd=None, tls=None,
-            use_pool=True, pool_size=10):
+    def _makeOne(
+            self, uri,
+            bind=None, passwd=None, tls=None, use_pool=True, pool_size=10):
         from pyramid_ldap3 import ConnectionManager
         ldap3 = DummyLdap3()
-        return ConnectionManager(uri, bind=bind, passwd=passwd, tls=tls,
-                use_pool=use_pool, pool_size=pool_size, ldap3=ldap3)
+        return ConnectionManager(
+            uri, bind=bind, passwd=passwd, tls=tls,
+            use_pool=use_pool, pool_size=pool_size, ldap3=ldap3)
 
     def test_uri(self):
         manager = self._makeOne('testhost')
@@ -270,12 +274,18 @@ class TestConnector(unittest.TestCase):
         self.assertEqual(search.kw['userdn'], '\\61\\62\\e7\\31\\32\\33')
 
 
-class Test_LDAPQuery(unittest.TestCase):
+class TestLDAPQuery(unittest.TestCase):
 
     def _makeOne(self, base_dn, filter_tmpl, scope, attributes, cache_period):
         from pyramid_ldap3 import _LDAPQuery
         return _LDAPQuery(
             base_dn, filter_tmpl, scope, attributes, cache_period)
+
+    def test_execute_no_result(self):
+        inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'none', 'attrs', 0)
+        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
+        result = inst.execute(conn, login='foo')
+        self.assertEqual(result, [])
 
     def test_query_cache_no_rollover(self):
         inst = self._makeOne(None, None, None, None, 1)
@@ -296,8 +306,8 @@ class Test_LDAPQuery(unittest.TestCase):
         result = inst.execute(conn, login='foo')
         self.assertEqual(result, [('a', {'b': 'c'})])
         self.assertEqual(conn.args, ('DN=Org', '(cn=foo)'))
-        self.assertEqual(conn.kwargs,
-            {'attributes': 'attrs', 'search_scope': 'scope'})
+        self.assertEqual(
+            conn.kwargs, {'attributes': 'attrs', 'search_scope': 'scope'})
 
     def test_execute_with_cache_period_miss(self):
         inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 1)
@@ -321,15 +331,16 @@ class Test_LDAPQuery(unittest.TestCase):
 
 class DummyLDAPConnector(object):
 
-    def __init__(self, dn, group_list):
-        self.dn = dn
+    def __init__(self, group_list):
         self.group_list = group_list
 
-    def user_groups(self, dn):
+    # noinspection PyUnusedLocal
+    def user_groups(self, userdn):
         return self.group_list
 
 
 class Dummy(object):
+
     def __init__(self, *arg, **kw):
         pass
 
@@ -341,18 +352,22 @@ class DummyConfig(object):
     def __init__(self):
         self.registry = Dummy()
         self.directives = []
+        self.prop_reify = self.prop_name = self.prop = None
 
-    def add_directive(self, name, fn):
+    # noinspection PyUnusedLocal
+    def add_directive(self, name, directive):
         self.directives.append(name)
-        
+
     def set_request_property(self, prop, name, reify=False):
         self.prop_reify = reify
         self.prop_name = name
         self.prop = prop
 
-    def action(self, discriminator, callable, introspectables=()):
-        if callable:
-            callable()
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def action(discriminator, action_task, introspectables=()):
+        if action_task:
+            action_task()
 
 
 class DummyManager(object):
@@ -390,7 +405,7 @@ class DummySearch(object):
     def execute(self, conn, **kw):
         if self.exc is not None:
             raise self.exc
-        self.conn = None
+        self.conn = conn
         self.kw = kw
         return self.result
 
@@ -410,6 +425,8 @@ class DummyConnection(object):
         return self.result_id
 
     def get_response(self, result_id):
+        if self.kwargs['search_scope'] == 'none':
+            return None, result_id
         return self.result, result_id
 
 
@@ -424,13 +441,22 @@ class DummyLdap3Server(object):
 
 class DummyLdap3Connection(object):
 
-    def __init__(self, server, user=None, password=None,
-            auto_bind=False, lazy=False, read_only=False,
-            client_strategy=None, pool_name='oyramid_ldap3', pool_size=10):
+    def __init__(
+            self, server, user=None, password=None,
+            auto_bind=False, authentication=None,
+            read_only=False, client_strategy=None, lazy=False,
+            pool_name='pyramid_ldap3', pool_size=10, pool_lifetime=None):
         self.server = server
         self.user = user
         self.password = password
+        self.auto_bind = auto_bind
+        self.authentication = authentication
+        self.read_only = read_only
+        self.client_strategy = client_strategy
+        self.lazy = lazy
+        self.pool_name = pool_name
         self.pool_size = pool_size
+        self.pool_lifetime = pool_lifetime
 
 
 class DummyLdap3(object):

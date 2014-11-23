@@ -2,6 +2,15 @@ Next release
 ------------
 
 
+0.2.2
+------
+
+- Ignore results without a dn instead of raising an error
+- Escape special characters when querying for groups
+- Do not cache invalid responses
+- Added documentation on recursive group queries
+
+
 0.2.1
 ------
 

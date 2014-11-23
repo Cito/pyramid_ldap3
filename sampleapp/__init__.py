@@ -9,7 +9,9 @@ from pyramid.security import Allow, Authenticated
 
 
 class RootFactory(object):
+
     __acl__ = [(Allow, Authenticated, 'view')]
+
     def __init__(self, request):
         pass
 
@@ -33,7 +35,7 @@ def main(global_config, **settings):
         cache_period=0)
     config.ldap_set_groups_query(
         'CN=Users,DC=example,DC=com',
-        #'(member:1.2.840.113556.1.4.1941:=%(userdn)s)',
+        # '(member:1.2.840.113556.1.4.1941:=%(userdn)s)',
         '(&(objectCategory=group)(member=%(userdn)s))',
         cache_period=60)
     config.add_route('sampleapp.root', '/')
@@ -41,4 +43,3 @@ def main(global_config, **settings):
     config.add_route('sampleapp.logout', '/logout')
     config.scan('.views')
     return config.make_wsgi_app()
-
