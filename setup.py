@@ -7,9 +7,7 @@ README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = ['pyramid>=1.3']
-if not 'READTHEDOCS' in os.environ:
-    # hail mary for readthedocs
-    requires.append('python3-ldap')
+requires.append('ldap3')
 
 sampleapp_extras = [
     'waitress',
