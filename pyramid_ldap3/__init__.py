@@ -87,7 +87,8 @@ class _LDAPQuery(object):
             else:
                 result = [(r['dn'], r['attributes']) for r in result
                           if 'dn' in r]
-                self.cache[cache_key] = result
+                if self.cache_period:
+                    self.cache[cache_key] = result
         else:
             logger.debug('result for %r retrieved from cache', cache_key)
 
