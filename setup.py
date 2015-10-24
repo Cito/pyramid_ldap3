@@ -6,8 +6,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = ['pyramid>=1.3']
-requires.append('ldap3')
+requires = ['pyramid>=1.3', 'ldap3']
 
 sampleapp_extras = [
     'waitress',
@@ -27,6 +26,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Topic :: System :: Systems Administration"
             " :: Authentication/Directory :: LDAP",
         "License :: Repoze Public License"],

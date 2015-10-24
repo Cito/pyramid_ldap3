@@ -5,6 +5,7 @@
 *$py.class
 *~
 .coverage
+.eggs/
 .tox/
 nosetests.xml
 tutorial.db
