@@ -1,6 +1,14 @@
 Next release
 ------------
 
+0.2.3
+-----
+
+- Account for renaming of python3-ldap to ldap3
+- Proper unbinding of Connections
+- Do not fill cache if caching has been disabled
+- Release as source package and universal wheel
+
 
 0.2.2
 ------
