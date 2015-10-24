@@ -250,6 +250,7 @@ class TestConnector(unittest.TestCase):
         manager = DummyManager()
         inst = self._makeOne(None, manager)
         self.assertRaises(ConfigurationError, inst.authenticate, None, None)
+        self.assertTrue(manager.status is None)
 
     def test_authenticate_search_returns_no_result(self):
         manager = DummyManager()
@@ -257,6 +258,7 @@ class TestConnector(unittest.TestCase):
         registry.ldap_login_query = DummySearch([])
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.authenticate(None, None) is None)
+        self.assertEqual(manager.status, 'unbound')
 
     def test_authenticate_empty_password(self):
         manager = DummyManager()
@@ -264,6 +266,7 @@ class TestConnector(unittest.TestCase):
         registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.authenticate('foo', '') is None)
+        self.assertTrue(manager.status is None)
 
     def test_authenticate_search_returns_one_result(self):
         manager = DummyManager()
@@ -271,6 +274,7 @@ class TestConnector(unittest.TestCase):
         registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
         self.assertEqual(inst.authenticate(None, None), ('a', 'b'))
+        self.assertEqual(manager.status, 'unbound')
 
     def test_authenticate_search_returns_multiple_results(self):
         manager = DummyManager()
@@ -278,6 +282,7 @@ class TestConnector(unittest.TestCase):
         registry.ldap_login_query = DummySearch([('a', 'b'), ('a', 'c')])
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.authenticate(None, None) is None)
+        self.assertEqual(manager.status, 'unbound')
 
     def test_authenticate_search_bind_raises(self):
         from pyramid_ldap3 import ldap3
@@ -286,11 +291,13 @@ class TestConnector(unittest.TestCase):
         registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.authenticate(None, None) is None)
+        self.assertEqual(manager.status, 'unbound')
 
     def test_user_groups_no_ldap_groups_query(self):
         manager = DummyManager()
         inst = self._makeOne(None, manager)
         self.assertRaises(ConfigurationError, inst.user_groups, None)
+        self.assertTrue(manager.status is None)
 
     def test_user_groups_search_returns_result(self):
         manager = DummyManager()
@@ -298,6 +305,7 @@ class TestConnector(unittest.TestCase):
         registry.ldap_groups_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
         self.assertEqual(inst.user_groups(None), [('a', 'b')])
+        self.assertEqual(manager.status, 'unbound')
 
     def test_user_groups_execute_raises(self):
         from pyramid_ldap3 import ldap3
@@ -307,6 +315,7 @@ class TestConnector(unittest.TestCase):
             [('a', 'b')], ldap3.LDAPException)
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.user_groups(None) is None)
+        self.assertEqual(manager.status, 'unbound')
 
     def test_user_groups_search_escapes(self):
         manager = DummyManager()
@@ -322,6 +331,7 @@ class TestConnector(unittest.TestCase):
         self.assertEqual(search.kw['userdn'].encode('latin-1'), b'ab\xe7123')
         self.assertEqual(inst.user_groups(b'ab\xe7123'), [('a', 'b')])
         self.assertEqual(search.kw['userdn'], '\\61\\62\\e7\\31\\32\\33')
+        self.assertEqual(manager.status, 'unbound')
 
 
 class TestLDAPQuery(unittest.TestCase):
@@ -424,7 +434,8 @@ class DummyManager(object):
 
     def __init__(self, with_errors=None):
         self.with_errors = with_errors or []
-        self.status = self.user = self.password = None
+        self.user = self.password = None
+        self.status = self.exit_info = None
 
     def connection(self, user=None, password=None):
         self.user = user
@@ -435,6 +446,13 @@ class DummyManager(object):
                 raise e
         self.bind()
         return self
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *exit_info):
+        self.exit_info = exit_info
+        self.unbind()
 
     def bind(self):
         self.status = 'bound'

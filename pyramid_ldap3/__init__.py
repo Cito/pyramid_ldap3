@@ -192,14 +192,13 @@ class Connector(object):
         if password == '':
             return None
 
-        conn = self.manager.connection()
         search = getattr(self.registry, 'ldap_login_query', None)
         if search is None:
             raise ConfigurationError(
                 'ldap_set_login_query was not called during setup')
 
-        result = search.execute(conn, login=login, password=password)
-        conn.unbind()
+        with self.manager.connection() as conn:
+            result = search.execute(conn, login=login, password=password)
 
         if not result or len(result) > 1:
             return None
@@ -232,19 +231,18 @@ class Connector(object):
         :exc:`pyramid.exceptions.ConfiguratorError`
 
         """
-        conn = self.manager.connection()
         search = getattr(self.registry, 'ldap_groups_query', None)
         if search is None:
             raise ConfigurationError(
                 'set_ldap_groups_query was not called during setup')
-        try:
-            result = search.execute(conn, userdn=escape_for_search(userdn))
-            conn.unbind()
-        except ldap3.LDAPException:
-            logger.debug(
-                'Exception in user_groups with userdn %r', userdn,
-                exc_info=True)
-            return None
+        with self.manager.connection() as conn:
+            try:
+                result = search.execute(conn, userdn=escape_for_search(userdn))
+            except ldap3.LDAPException:
+                logger.debug(
+                    'Exception in user_groups with userdn %r', userdn,
+                    exc_info=True)
+                return None
 
         return result
 
