@@ -364,6 +364,7 @@ class TestLDAPQuery(unittest.TestCase):
         inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 0)
         conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
         result = inst.execute(conn, login='foo')
+        self.assertEqual(inst.cache, {})
         self.assertEqual(result, [('a', {'b': 'c'})])
         self.assertEqual(conn.args, ('DN=Org', '(cn=foo)'))
         self.assertEqual(
