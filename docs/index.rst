@@ -8,19 +8,19 @@ Overview
 :mod:`pyramid_ldap3` provides LDAP authentication services for your Pyramid
 application.  It is a fork of the ``pyramid_ldap`` package with the goal
 of eliminating the dependency on ``python-ldap`` and ``ldappool``,
-replacing it with a dependency on ``python3-ldap``, which is a pure
-Python package that also supports Python 3.
+replacing it with a dependency on ``ldap3``, which is a pure Python package
+that also supports Python 3.
 
 
 Installation
 ------------
 
-``pyramid_ldap3`` depends on the
-`python3-ldap <http://pythonhosted.org/python3-ldap/>`_ package.
+``pyramid_ldap3`` depends on the `ldap3 <http://ldap3.readthedocs.org/>`_
+package.
 
-You can install ``pyramid_ldap3`` using pip, e.g. (within a virtualenv)::
+You can install ``ldap3`` using pip, e.g. (within a virtualenv)::
 
-  $ pip install pyramid_ldap3
+  $ pip install ldap3
 
 
 Setup

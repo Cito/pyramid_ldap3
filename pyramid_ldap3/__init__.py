@@ -371,7 +371,7 @@ def get_ldap_connector(request):
     if connector is None:
         if ldap3.LDAPException is Exception:  # pragma: no cover
             raise ImportError(
-                'You must install python3-ldap to use an LDAP connector.')
+                'You must install ldap3 to use an LDAP connector.')
         raise ConfigurationError(
             'You must call Configurator.ldap_setup during setup '
             'to use an LDAP connector.')
