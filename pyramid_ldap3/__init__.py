@@ -109,7 +109,7 @@ class ConnectionManager(object):
     # noinspection PyShadowingNames
     def __init__(
             self, uri, bind=None, passwd=None, tls=None,
-            use_pool=True, pool_size=10, pool_lifetime=None, ldap3=ldap3):
+            use_pool=True, pool_size=10, pool_lifetime=3600, ldap3=ldap3):
         self.ldap3 = ldap3
         uris = uri if isinstance(uri, (list, tuple)) else uri.split()
         self.uri = uri[0] if len(uris) == 1 else uris
@@ -329,7 +329,8 @@ def ldap_set_groups_query(
 
 def ldap_setup(
         config, uri,
-        bind=None, passwd=None, use_tls=False, use_pool=True, pool_size=10):
+        bind=None, passwd=None, use_tls=False,
+        use_pool=True, pool_size=10, pool_lifetime=3600):
     """Configurator method to set up an LDAP connection pool.
 
     - **uri**: ldap server uri(s) **[mandatory]**
@@ -338,13 +339,16 @@ def ldap_setup(
     - **passwd**: default password that will be used to bind a connector.
       **default: None**
     - **use_tls**: activate TLS when connecting. **default: False**
-    - **use_pool**: activates the pool. If False, will recreate a connector
-       each time. **default: True**
-    - **pool_size**: pool size. **default: 10**
+    - **use_pool**: activates the connection pool. If False, will recreate a
+       connector each time. **default: True**
+    - **pool_size**: connection pool size. **default: 10**
+    - **pool_lifetime**: number of seconds before recreating a new connection
+       when using a connection pool.  **default: 3600**
     """
 
     manager = ConnectionManager(
-        uri, bind, passwd, use_tls, use_pool, pool_size if use_pool else None)
+        uri, bind, passwd, use_tls, use_pool,
+        pool_size if use_pool else None, pool_lifetime if use_pool else None)
 
     def get_connector(request):
         return Connector(request.registry, manager)
