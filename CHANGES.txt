@@ -1,5 +1,9 @@
-Next release
-------------
+0.2.4
+-----
+
+- The pool lifetime is now configurable
+
+
 
 0.2.3
 -----

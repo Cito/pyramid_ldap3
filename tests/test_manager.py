@@ -5,12 +5,14 @@ class TestConnectionManager(TestCase):
 
     def _makeOne(
             self, uri,
-            bind=None, passwd=None, tls=None, use_pool=True, pool_size=10):
+            bind=None, passwd=None, tls=None, use_pool=True,
+            pool_size=10, pool_lifetime=3600):
         from pyramid_ldap3 import ConnectionManager
         ldap3 = DummyLdap3()
         return ConnectionManager(
             uri, bind=bind, passwd=passwd, tls=tls,
-            use_pool=use_pool, pool_size=pool_size, ldap3=ldap3)
+            use_pool=use_pool, pool_size=pool_size,
+            pool_lifetime=pool_lifetime, ldap3=ldap3)
 
     def test_uri(self):
         manager = self._makeOne('testhost')
@@ -52,6 +54,8 @@ class TestConnectionManager(TestCase):
         self.assertEqual(manager.pool_size, 10)
         manager = self._makeOne('testhost', pool_size=42)
         self.assertEqual(manager.pool_size, 42)
+        manager = self._makeOne('testhost', pool_lifetime=4200)
+        self.assertEqual(manager.pool_lifetime, 4200)
         manager = self._makeOne('testhost', use_pool=False)
         self.assertTrue(manager.pool_size is None)
 
