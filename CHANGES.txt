@@ -1,3 +1,11 @@
+0.2.5
+-----
+
+- Explicitly requires ldap3 < version 2.0 because in version 2 of ldap3
+  some default values have been changed and constants renamed or changed.
+  This version is intended to support the older ldap3 versions.
+
+
 0.2.4
 -----
 

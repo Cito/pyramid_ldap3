@@ -5,7 +5,7 @@ here = path.abspath(path.dirname(__file__))
 README = open(path.join(here, 'README.rst')).read()
 CHANGES = open(path.join(here, 'CHANGES.txt')).read()
 
-requires = ['pyramid>=1.3', 'ldap3']
+requires = ['pyramid>=1.3', 'ldap3<2.0']
 
 sampleapp_extras = ['waitress', 'pyramid_debugtoolbar']
 testing_extras = ['nose', 'coverage']
