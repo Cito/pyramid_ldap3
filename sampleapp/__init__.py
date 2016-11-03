@@ -31,7 +31,7 @@ def main(global_config, **settings):
     config.ldap_set_login_query(
         'CN=Users,DC=example,DC=com',
         '(sAMAccountName=%(login)s)',
-        scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE,
+        scope=ldap3.SUBTREE,
         cache_period=0)
     config.ldap_set_groups_query(
         'CN=Users,DC=example,DC=com',

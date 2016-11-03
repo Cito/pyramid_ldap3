@@ -144,8 +144,8 @@ class DummyLdap3Connection(object):
 
 class DummyLdap3(object):
 
-    STRATEGY_ASYNC_THREADED = 1
-    STRATEGY_REUSABLE_THREADED = 2
+    ASYNC = 1
+    REUSABLE = 2
 
     Server = DummyLdap3Server
     Connection = DummyLdap3Connection

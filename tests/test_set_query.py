@@ -16,7 +16,7 @@ class TestLdapSetGroupsQuery(TestCase):
         self.assertEqual(ldap_groups_query.base_dn, 'dn')
         self.assertEqual(ldap_groups_query.filter_tmpl, 'tmpl')
         self.assertEqual(
-            ldap_groups_query.scope, ldap3.SEARCH_SCOPE_WHOLE_SUBTREE)
+            ldap_groups_query.scope, ldap3.SUBTREE)
         self.assertEqual(ldap_groups_query.cache_period, 0)
 
 
@@ -35,5 +35,5 @@ class TestLdapSetLoginQuery(TestCase):
         self.assertEqual(ldap_login_query.base_dn, 'dn')
         self.assertEqual(ldap_login_query.filter_tmpl, 'tmpl')
         self.assertEqual(
-            ldap_login_query.scope, ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
+            ldap_login_query.scope, ldap3.LEVEL)
         self.assertEqual(ldap_login_query.cache_period, 0)

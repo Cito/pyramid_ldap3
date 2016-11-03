@@ -65,8 +65,8 @@ class TestConnector(TestCase):
         self.assertEqual(manager.status, 'unbound')
 
     def test_authenticate_search_bind_raises(self):
-        from pyramid_ldap3 import ldap3
-        manager = DummyManager([None, ldap3.LDAPException])
+        from pyramid_ldap3 import LDAPException
+        manager = DummyManager([None, LDAPException])
         registry = Dummy()
         registry.ldap_login_query = DummySearch([('a', 'b')])
         inst = self._makeOne(registry, manager)
@@ -88,11 +88,11 @@ class TestConnector(TestCase):
         self.assertEqual(manager.status, 'unbound')
 
     def test_user_groups_execute_raises(self):
-        from pyramid_ldap3 import ldap3
+        from pyramid_ldap3 import LDAPException
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_groups_query = DummySearch(
-            [('a', 'b')], ldap3.LDAPException)
+            [('a', 'b')], LDAPException)
         inst = self._makeOne(registry, manager)
         self.assertTrue(inst.user_groups(None) is None)
         self.assertEqual(manager.status, 'unbound')

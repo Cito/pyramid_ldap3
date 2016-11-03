@@ -10,12 +10,14 @@ try:
 except ImportError:  # pragma: no cover
     # this is for benefit of being able to build the docs on rtd.org
     class _Ldap3Module(object):
-        LDAPException = Exception
-        SEARCH_SCOPE_BASE_OBJECT = None
-        SEARCH_SCOPE_SINGLE_LEVEL = None
-        SEARCH_SCOPE_WHOLE_SUBTREE = None
-        STRATEGY_REUSABLE_THREADED = None
+        BASE = None
+        LEVEL = None
+        SUBTREE = None
+        REUSABLE = None
     ldap3 = _Ldap3Module()
+    LDAPException = Exceptions
+else:
+    LDAPException = ldap3.core.exceptions.LDAPException
 
 logger = logging.getLogger(__name__)
 
@@ -132,12 +134,12 @@ class ConnectionManager(object):
             0] if len(servers) == 1 else self.ldap3.ServerPool(servers)
         self.bind, self.passwd = bind, passwd
         if use_pool:
-            self.strategy = ldap3.STRATEGY_REUSABLE_THREADED
+            self.strategy = ldap3.REUSABLE
             self.pool_name = 'pyramid_ldap3'
             self.pool_size = pool_size
             self.pool_lifetime = pool_lifetime
         else:
-            self.strategy = ldap3.STRATEGY_ASYNC_THREADED
+            self.strategy = ldap3.ASYNC
             self.pool_name = self.pool_size = self.pool_lifetime = None
 
     def __str__(self):
@@ -148,7 +150,7 @@ class ConnectionManager(object):
         if user:
             conn = self.ldap3.Connection(
                 self.server, user=user, password=password,
-                client_strategy=ldap3.STRATEGY_SYNC,
+                client_strategy=ldap3.SYNC,
                 auto_bind=True, lazy=False, read_only=True)
         else:
             conn = self.ldap3.Connection(
@@ -207,7 +209,7 @@ class Connector(object):
 
         try:
             self.manager.connection(login_dn, password).unbind()
-        except ldap3.LDAPException:
+        except LDAPException:
             logger.debug(
                 'Exception in authenticate with login %r', login,
                 exc_info=True)
@@ -238,7 +240,7 @@ class Connector(object):
         with self.manager.connection() as conn:
             try:
                 result = search.execute(conn, userdn=escape_for_search(userdn))
-            except ldap3.LDAPException:
+            except LDAPException:
                 logger.debug(
                     'Exception in user_groups with userdn %r', userdn,
                     exc_info=True)
@@ -249,7 +251,7 @@ class Connector(object):
 
 def ldap_set_login_query(
         config, base_dn, filter_tmpl,
-        scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL, attributes=None,
+        scope=ldap3.LEVEL, attributes=None,
         cache_period=0):
     """Configurator method to set the LDAP login search.
 
@@ -257,7 +259,7 @@ def ldap_set_login_query(
     ``filter_tmpl`` is a string which can be used as an LDAP filter:
     it should contain the replacement value ``%(login)s``.
     ``scope`` is any valid LDAP scope value
-    (e.g. ``ldap3.SEARCH_SCOPE_SINGLE_LEVEL``).
+    (e.g. ``ldap3.LEVEL`` or ``ldap3.SUBTREE``).
     ``attributes`` is a list of attributes that shall be returned
     (can also be set to None or ``ldap3.ALL_ATTRIBUTES``).
     ``cache_period`` is the number of seconds to cache login search results;
@@ -268,7 +270,7 @@ def ldap_set_login_query(
         config.set_ldap_login_query(
             base_dn='CN=Users,DC=example,DC=com',
             filter_tmpl='(sAMAccountName=%(login)s)',
-            scope=ldap3.SEARCH_SCOPE_SINGLE_LEVEL)
+            scope=ldap3.LEVEL)
 
     The registered search must return one and only one value to be considered
     a valid login.
@@ -290,7 +292,7 @@ def ldap_set_login_query(
 
 def ldap_set_groups_query(
         config, base_dn, filter_tmpl,
-        scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE, attributes=None,
+        scope=ldap3.SUBTREE, attributes=None,
         cache_period=0):
     """ Configurator method to set the LDAP groups search.
 
@@ -298,7 +300,7 @@ def ldap_set_groups_query(
     ``filter_tmpl`` is a string which can be used as an LDAP filter:
     it should contain the replacement value ``%(userdn)s``.
     ``scope`` is any valid LDAP scope value
-    (e.g. ``ldap3.SEARCH_SCOPE_SINGLE_LEVEL``).
+    (e.g. ``ldap3.LEVEL`` or ``ldap3.SUBTREE``).
     ``attributes`` is a list of attributes that shall be returned
     (can also be set to None or ``ldap3.ALL_ATTRIBUTES``).
     ``cache_period`` is the number of seconds to cache groups search results;
@@ -309,7 +311,7 @@ def ldap_set_groups_query(
         config.set_ldap_groups_query(
             base_dn='CN=Users,DC=example,DC=com',
             filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))'
-            scope=ldap3.SEARCH_SCOPE_WHOLE_SUBTREE)
+            scope=ldap3.SUBTREE)
 
     """
 
@@ -371,7 +373,7 @@ def get_ldap_connector(request):
     """
     connector = getattr(request, 'ldap_connector', None)
     if connector is None:
-        if ldap3.LDAPException is Exception:  # pragma: no cover
+        if LDAPException is Exception:  # pragma: no cover
             raise ImportError(
                 'You must install ldap3 to use an LDAP connector.')
         raise ConfigurationError(
