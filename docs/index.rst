@@ -15,7 +15,7 @@ that supports both Python 2 and Python 3.
 Installation
 ------------
 
-``pyramid_ldap3`` depends on the `ldap3 <http://ldap3.readthedocs.org/>`_
+``pyramid_ldap3`` depends on the `ldap3 <http://ldap3.readthedocs.io/>`_
 package.
 
 You can install ``ldap3`` using pip, e.g. (within a virtualenv)::
