@@ -128,7 +128,7 @@ class ConnectionManager(object):
             except ValueError:
                 host, port = host, 636 if use_ssl else 389
             server = self.ldap3.Server(
-                host, port=port, use_ssl=use_ssl, tls=tls)
+                host, port=port, use_ssl=use_ssl, tls=tls, get_info=ldap3.NONE)
             servers.append(server)
         self.server = servers[
             0] if len(servers) == 1 else self.ldap3.ServerPool(servers)
