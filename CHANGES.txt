@@ -1,3 +1,12 @@
+0.3.1
+-----
+
+- Since ldap3 version 2.0.7, schema information is loaded from the server on
+  every connection. This is normally not needed for authentication and slows
+  down the connections, so we now disable this feature. If you fetch user or
+  group attributes and want them to be properly formatted, you must enable this
+  feature by setting get_info to 'SCHEMA' or 'ALL' when calling ldap_setup().
+
 0.3
 ---
 

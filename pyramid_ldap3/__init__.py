@@ -111,10 +111,13 @@ class ConnectionManager(object):
     # noinspection PyShadowingNames
     def __init__(
             self, uri, bind=None, passwd=None, tls=None,
-            use_pool=True, pool_size=10, pool_lifetime=3600, ldap3=ldap3):
+            use_pool=True, pool_size=10, pool_lifetime=3600,
+            get_info=None, ldap3=ldap3):
         self.ldap3 = ldap3
         uris = uri if isinstance(uri, (list, tuple)) else uri.split()
         self.uri = uri[0] if len(uris) == 1 else uris
+        if get_info is None:
+            get_info = ldap3.NONE
         servers = []
         for uri in uris:
             try:
@@ -128,7 +131,8 @@ class ConnectionManager(object):
             except ValueError:
                 host, port = host, 636 if use_ssl else 389
             server = self.ldap3.Server(
-                host, port=port, use_ssl=use_ssl, tls=tls, get_info=ldap3.NONE)
+                host, port=port, use_ssl=use_ssl, tls=tls,
+                get_info=get_info)
             servers.append(server)
         self.server = servers[
             0] if len(servers) == 1 else self.ldap3.ServerPool(servers)
@@ -332,7 +336,8 @@ def ldap_set_groups_query(
 def ldap_setup(
         config, uri,
         bind=None, passwd=None, use_tls=False,
-        use_pool=True, pool_size=10, pool_lifetime=3600):
+        use_pool=True, pool_size=10, pool_lifetime=3600,
+        get_info=None):
     """Configurator method to set up an LDAP connection pool.
 
     - **uri**: ldap server uri(s) **[mandatory]**
@@ -340,6 +345,8 @@ def ldap_setup(
       **default: None**
     - **passwd**: default password that will be used to bind a connector.
       **default: None**
+    - **get_info**: specifies if schema or server specific info shall be read
+       for proper formatting of attributes.  **default: None**
     - **use_tls**: activate TLS when connecting. **default: False**
     - **use_pool**: activates the connection pool. If False, will recreate a
        connector each time. **default: True**
@@ -349,8 +356,9 @@ def ldap_setup(
     """
 
     manager = ConnectionManager(
-        uri, bind, passwd, use_tls, use_pool,
-        pool_size if use_pool else None, pool_lifetime if use_pool else None)
+        uri, bind, passwd, use_tls,
+        use_pool, pool_size if use_pool else None,
+        pool_lifetime if use_pool else None, get_info)
 
     def get_connector(request):
         return Connector(request.registry, manager)

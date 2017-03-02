@@ -139,6 +139,7 @@ Here's a small application which uses the ``pyramid_ldap3`` API:
         view_config,
         forbidden_view_config)
 
+    from pyramid.response import Response
     from pyramid.httpexceptions import HTTPFound
 
     from pyramid.security import (

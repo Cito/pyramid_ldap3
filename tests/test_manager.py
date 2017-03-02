@@ -5,14 +5,16 @@ class TestConnectionManager(TestCase):
 
     def _makeOne(
             self, uri,
-            bind=None, passwd=None, tls=None, use_pool=True,
-            pool_size=10, pool_lifetime=3600):
+            bind=None, passwd=None, tls=None,
+            use_pool=True, pool_size=10, pool_lifetime=3600,
+            get_info=None):
         from pyramid_ldap3 import ConnectionManager
         ldap3 = DummyLdap3()
         return ConnectionManager(
             uri, bind=bind, passwd=passwd, tls=tls,
             use_pool=use_pool, pool_size=pool_size,
-            pool_lifetime=pool_lifetime, ldap3=ldap3)
+            pool_lifetime=pool_lifetime,
+            get_info=get_info, ldap3=ldap3)
 
     def test_uri(self):
         manager = self._makeOne('testhost')
@@ -43,6 +45,13 @@ class TestConnectionManager(TestCase):
         tls = ldap3.Tls()
         manager = self._makeOne('testhost', tls=tls)
         self.assertTrue(manager.server.tls is tls)
+
+    def test_get_info(self):
+        manager = self._makeOne('testhost')
+        from pyramid_ldap3 import ldap3
+        self.assertEqual(manager.server.get_info, ldap3.NONE)
+        manager = self._makeOne('testhost', get_info=ldap3.ALL)
+        self.assertEqual(manager.server.get_info, ldap3.ALL)
 
     def test_bind(self):
         manager = self._makeOne('testhost', 'fred', 'flint')

@@ -115,11 +115,13 @@ class DummyConnection(object):
 
 class DummyLdap3Server(object):
 
-    def __init__(self, host, port=None, use_ssl=False, tls=None):
+    def __init__(
+            self, host, port=None, use_ssl=False, tls=None, get_info=None):
         self.host = host
         self.port = port
         self.ssl = use_ssl
         self.tls = tls
+        self.get_info = get_info
 
 
 class DummyLdap3Connection(object):
@@ -146,6 +148,10 @@ class DummyLdap3(object):
 
     ASYNC = 1
     REUSABLE = 2
+
+    NONE = 'NO_INFO'
+    SCHEMA = 'SCHEMA'
+    ALL = 'ALL'
 
     Server = DummyLdap3Server
     Connection = DummyLdap3Connection
