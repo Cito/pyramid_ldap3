@@ -345,14 +345,14 @@ def ldap_setup(
       **default: None**
     - **passwd**: default password that will be used to bind a connector.
       **default: None**
-    - **get_info**: specifies if schema or server specific info shall be read
-       for proper formatting of attributes.  **default: None**
     - **use_tls**: activate TLS when connecting. **default: False**
     - **use_pool**: activates the connection pool. If False, will recreate a
-       connector each time. **default: True**
+      connector each time. **default: True**
     - **pool_size**: connection pool size. **default: 10**
     - **pool_lifetime**: number of seconds before recreating a new connection
-       when using a connection pool.  **default: 3600**
+      when using a connection pool.  **default: 3600**
+    - **get_info**: specifies if schema or server specific info shall be read
+      for proper formatting of attributes.  **default: None**
     """
 
     manager = ConnectionManager(
