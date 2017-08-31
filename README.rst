@@ -7,5 +7,5 @@ of eliminating the dependency on ``python-ldap`` and ``ldappool``,
 replacing it with a dependency on ``ldap3``, which is a pure Python package
 that supports both Python 2 and Python 3.
 
-See the documentation at http://pyramid-ldap3.readthedocs.io/
+See the documentation at https://pyramid-ldap3.readthedocs.io/
 for more information.

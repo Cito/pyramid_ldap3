@@ -7,9 +7,13 @@ CHANGES = open(path.join(here, 'CHANGES.txt')).read()
 
 requires = ['pyramid>=1.3', 'ldap3>=2.0']
 
-sampleapp_extras = ['waitress', 'pyramid_debugtoolbar']
-testing_extras = ['nose', 'coverage']
-docs_extras = ['Sphinx']
+sampleapp_extras = [
+    'waitress', 'pyramid_debugtoolbar']
+testing_extras = [
+    'nose', 'coverage']
+docs_extras = [
+    'Sphinx>=1.3.1','docutils',
+    'repoze.sphinx.autointerface','pylons-sphinx-them']
 
 setup(
     name='pyramid_ldap3',
@@ -35,7 +39,7 @@ setup(
         "License :: Repoze Public License"],
     author='Chris McDonough, Christoph Zwerschke',
     author_email='pylons-discuss@groups.google.com',
-    url='http://pylonsproject.org',
+    url='https://pylonsproject.org/',
     license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
     keywords='web pyramid pylons ldap auth authentication',
     packages=find_packages(exclude=['docs', 'tests', 'sampleapp']),

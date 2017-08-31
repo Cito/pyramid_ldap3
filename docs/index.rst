@@ -15,7 +15,7 @@ that supports both Python 2 and Python 3.
 Installation
 ------------
 
-``pyramid_ldap3`` depends on the `ldap3 <http://ldap3.readthedocs.io/>`_
+``pyramid_ldap3`` depends on the `ldap3 <https://ldap3.readthedocs.io/>`_
 package.
 
 You can install ``ldap3`` using pip, e.g. (within a virtualenv)::
@@ -253,12 +253,12 @@ objects of the ``objectCategory=group`` type as group results.  Unlike the
 login query, we cache the result of each search made via this query for up to
 10 minutes (600 seconds) based on its ``cache_period`` argument.
 
-Note that this query is not recursive; only groups a user belongs to directly 
+Note that this query is not recursive; only groups a user belongs to directly
 will be returned. If e.g. a user belongs to a group that in itself belongs to
 another group, only the first will be returned. To query user groups recursively,
-including all parent groups, use the following filter template: 
-``(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:=%(userdn)s))``. 
-See `<http://msdn.microsoft.com/en-us/library/aa746475%28v=vs.85%29.aspx>`_ 
+including all parent groups, use the following filter template:
+``(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:=%(userdn)s))``.
+See `<https://msdn.microsoft.com/en-us/library/aa746475%28v=vs.85%29.aspx>`_
 
 The ``login`` view is invoked when someone visits ``/login`` or when the user
 is prevented from invoking another view due to its permission settings.  It
