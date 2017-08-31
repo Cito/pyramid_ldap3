@@ -12,8 +12,8 @@ sampleapp_extras = [
 testing_extras = [
     'nose', 'coverage']
 docs_extras = [
-    'Sphinx>=1.3.1','docutils',
-    'repoze.sphinx.autointerface','pylons-sphinx-themes']
+    'Sphinx>=1.3.1', 'docutils',
+    'repoze.sphinx.autointerface', 'pylons-sphinx-themes']
 
 setup(
     name='pyramid_ldap3',

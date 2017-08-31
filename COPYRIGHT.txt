@@ -1,3 +1,5 @@
 Copyright (c) 2008-2011 SurveyMonkey, All Rights Reserved
 
-Copyright (c) 2008-2011 Agendaless Consulting, All Rights Reserved
+Copyright (c) 2008-2013 Agendaless Consulting, All Rights Reserved
+
+Copyright (c) 2014-2017 Christoph Zwerschke, All Rights Reserved
