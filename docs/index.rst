@@ -276,7 +276,7 @@ since it is, according to the LDAP spec, a request for "unauthenticated
 authentication." Unauthenticated authentication should not be used for LDAP
 based authentication.
 
-See `section 5.1.2 of RFC-4513 <http://tools.ietf.org/html/rfc4513#section-5.1.2>`_
+See `section 5.1.2 of RFC-4513 <https://tools.ietf.org/html/rfc4513#section-5.1.2>`_
 for a description of this behavior.
 
 When the user's name and password are correct, the ``login`` view uses the
@@ -331,10 +331,10 @@ More Information
 Reporting Bugs / Development Versions
 -------------------------------------
 
-Visit http://github.com/Cito/pyramid_ldap3 to download development or
+Visit https://github.com/Cito/pyramid_ldap3 to download development or
 tagged versions.
 
-Visit http://github.com/Cito/pyramid_ldap3/issues to report bugs.
+Visit https://github.com/Cito/pyramid_ldap3/issues to report bugs.
 
 
 Indices and tables
