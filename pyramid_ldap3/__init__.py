@@ -187,7 +187,7 @@ class Connector(object):
         A zero length password will always be considered invalid since it
         results in a request for "unauthenticated authentication" which should
         not be used for LDAP based authentication. See `section 5.1.2 of
-        RFC-4513 <http://tools.ietf.org/html/rfc4513#section-5.1.2>`_ for a
+        RFC-4513 <https://tools.ietf.org/html/rfc4513#section-5.1.2>`_ for a
         description of this behavior.
 
         If :meth:`pyramid.config.Configurator.ldap_set_login_query` was not
