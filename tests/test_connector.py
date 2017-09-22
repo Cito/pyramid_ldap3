@@ -73,6 +73,24 @@ class TestConnector(TestCase):
         self.assertTrue(inst.authenticate(None, None) is None)
         self.assertEqual(manager.status, 'unbound')
 
+    def test_authenticate_search_escapes(self):
+        manager = DummyManager()
+        registry = Dummy()
+        search = DummySearch([('a', 'b')])
+        registry.ldap_login_query = search
+        inst = self._makeOne(registry, manager)
+        self.assertEqual(inst.authenticate('abc123', 'def456'), ('a', 'b'))
+        self.assertEqual(search.kw['login'], 'abc123')
+        self.assertEqual(search.kw['password'], 'def456')
+        self.assertEqual(inst.authenticate('abc*', 'def*'), ('a', 'b'))
+        self.assertEqual(search.kw['login'], 'abc\\2A')
+        self.assertEqual(search.kw['password'], 'def\\2A')
+        self.assertEqual(inst.authenticate(b'ab\xc3\xa7123', None), ('a', 'b'))
+        self.assertEqual(search.kw['login'].encode('latin-1'), b'ab\xe7123')
+        self.assertEqual(inst.authenticate(b'ab\xe7123', None), ('a', 'b'))
+        self.assertEqual(search.kw['login'], '\\61\\62\\e7\\31\\32\\33')
+        self.assertEqual(manager.status, 'unbound')
+
     def test_user_groups_no_ldap_groups_query(self):
         manager = DummyManager()
         inst = self._makeOne(None, manager)

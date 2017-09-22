@@ -1,7 +1,6 @@
 
 import logging
 
-from functools import partial
 from time import time
 
 from pyramid.exceptions import ConfigurationError
@@ -17,13 +16,27 @@ except ImportError:  # pragma: no cover
         REUSABLE = None
     ldap3 = _Ldap3Module()
     LDAPException = Exception
-    escape_filter_chars = None
 else:
     LDAPException = ldap3.core.exceptions.LDAPException
-    escape_filter_chars = ldap3.utils.conv.escape_filter_chars
-    escape_filter_chars = partial(escape_filter_chars, encoding='utf-8')
 
 logger = logging.getLogger(__name__)
+
+_ord = ord if str is bytes else int
+
+_escape_for_search = {
+    '*': '\\2A', '(': '\\28', ')': '\\29', '\\': '\\5C', '\0': '\\00'}
+
+
+def escape_for_search(s):
+    """Escape search string for LDAP according to RFC4515 when necessary."""
+    if not s:
+        return s
+    if isinstance(s, bytes):
+        try:
+            s = s.decode('utf-8')
+        except UnicodeDecodeError:
+            return ''.join('\\%02x' % _ord(b) for b in s)
+    return ''.join((_escape_for_search.get(c, c) for c in s))
 
 
 class _LDAPQuery(object):
@@ -191,8 +204,8 @@ class Connector(object):
 
         with self.manager.connection() as conn:
             result = search.execute(
-                conn, login=escape_filter_chars(login),
-                password=escape_filter_chars(password))
+                conn, login=escape_for_search(login),
+                password=escape_for_search(password))
 
         if not result or len(result) > 1:
             return None
@@ -232,7 +245,7 @@ class Connector(object):
         with self.manager.connection() as conn:
             try:
                 result = search.execute(
-                    conn, userdn=escape_filter_chars(userdn))
+                    conn, userdn=escape_for_search(userdn))
             except LDAPException:
                 logger.debug(
                     'Exception in user_groups with userdn %r', userdn,
