@@ -1,3 +1,12 @@
+0.3.2
+-----
+
+- The login value in the search filter is now properly escaped in the
+  authenticate() method. Although the bind test in the second stage of the
+  method ensures the proper password is passed, this could be exploited
+  to login with a different user name like 'foo*' instead of 'foobar'.
+  Thanks to Patrick Valsecchi for the bug report.
+
 0.3.1
 -----
 
