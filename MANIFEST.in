@@ -4,7 +4,6 @@ prune .eggs
 prune .tox
 graft docs
 prune docs/_build
-prune docs__themes/
 graft tests
 graft sampleapp
 global-exclude *.pyc *.pyo __pycache__
