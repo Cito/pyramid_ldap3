@@ -5,7 +5,7 @@ here = path.abspath(path.dirname(__file__))
 README = open(path.join(here, 'README.rst')).read()
 CHANGES = open(path.join(here, 'CHANGES.txt')).read()
 
-requires = ['pyramid>=1.3', 'ldap3>=2.0']
+requires = ['pyramid>=1.4', 'ldap3>=2.0']
 
 sampleapp_extras = [
     'waitress', 'pyramid_debugtoolbar']
@@ -17,7 +17,7 @@ docs_extras = [
 
 setup(
     name='pyramid_ldap3',
-    version='0.3.3',
+    version='0.4',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
@@ -31,6 +31,7 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         'Topic :: Software Development :: Libraries :: Python Modules',
         "Topic :: System :: Systems Administration"
             " :: Authentication/Directory :: LDAP",

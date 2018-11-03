@@ -1,3 +1,10 @@
+0.4
+---
+
+- Made pyramid_ldap3 compatible with Pyramid 1.10
+- We require Pyramid >= 1.4 now
+
+
 0.3.2
 -----
 
@@ -7,6 +14,7 @@
   to login with a different user name like 'foo*' instead of 'foobar'.
   Thanks to Patrick Valsecchi for the bug report.
 
+
 0.3.1
 -----
 
@@ -15,6 +23,7 @@
   down the connections, so we now disable this feature. If you fetch user or
   group attributes and want them to be properly formatted, you must enable this
   feature by setting get_info to 'SCHEMA' or 'ALL' when calling ldap_setup().
+
 
 0.3
 ---
@@ -34,7 +43,6 @@
 -----
 
 - The pool lifetime is now configurable
-
 
 
 0.2.3

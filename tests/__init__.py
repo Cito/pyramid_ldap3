@@ -27,16 +27,15 @@ class DummyConfig(object):
     def __init__(self):
         self.registry = Dummy()
         self.directives = []
-        self.prop_reify = self.prop_name = self.prop = None
+        self.req_method = self.req_method_args = None
 
     # noinspection PyUnusedLocal
     def add_directive(self, name, directive):
         self.directives.append(name)
 
-    def set_request_property(self, prop, name, reify=False):
-        self.prop_reify = reify
-        self.prop_name = name
-        self.prop = prop
+    def add_request_method(self, method, name, property=False, reify=False):
+        self.req_method = method
+        self.req_method_args = name, property, reify
 
     # noinspection PyUnusedLocal
     @staticmethod

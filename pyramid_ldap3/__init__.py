@@ -365,7 +365,8 @@ def ldap_setup(
     def get_connector(request):
         return Connector(request.registry, manager)
 
-    config.set_request_property(get_connector, 'ldap_connector', reify=True)
+    config.add_request_method(
+        get_connector, 'ldap_connector', property=True, reify=True)
 
     intr = config.introspectable(
         'pyramid_ldap3 setup',

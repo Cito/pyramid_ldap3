@@ -42,13 +42,13 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'pyramid_ldap3'
-copyright = '2012-2017, Agendaless Consulting et al.'
+copyright = '2012-2018, Agendaless Consulting et al.'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.3'
+version = '0.4'
 # The full version, including alpha/beta/rc tags.
 release = version
 
