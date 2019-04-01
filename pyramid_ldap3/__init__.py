@@ -72,17 +72,18 @@ class _LDAPQuery(object):
 
         return self.cache.get(cache_key)
 
-    def execute(self, conn, **kw):
+    def execute(self, manager, **kw):
         cache_key = (self.base_dn % kw, self.filter_tmpl % kw)
 
         logger.debug('searching for %r', cache_key)
 
         result = self.query_cache(cache_key) if self.cache_period else None
         if result is None:
-            ret = conn.search(
-                search_scope=self.scope,
-                attributes=self.attributes, *cache_key)
-            result, ret = conn.get_response(ret)
+            with manager.connection() as conn:
+                ret = conn.search(
+                    search_scope=self.scope,
+                    attributes=self.attributes, *cache_key)
+                result, ret = conn.get_response(ret)
             if result is None:
                 result = []
             else:
@@ -202,10 +203,9 @@ class Connector(object):
             raise ConfigurationError(
                 'ldap_set_login_query was not called during setup')
 
-        with self.manager.connection() as conn:
-            result = search.execute(
-                conn, login=escape_for_search(login),
-                password=escape_for_search(password))
+        result = search.execute(
+            self.manager, login=escape_for_search(login),
+            password=escape_for_search(password))
 
         if not result or len(result) > 1:
             return None
@@ -242,15 +242,14 @@ class Connector(object):
         if search is None:
             raise ConfigurationError(
                 'set_ldap_groups_query was not called during setup')
-        with self.manager.connection() as conn:
-            try:
-                result = search.execute(
-                    conn, userdn=escape_for_search(userdn))
-            except LDAPException:
-                logger.debug(
-                    'Exception in user_groups with userdn %r', userdn,
-                    exc_info=True)
-                return None
+        try:
+            result = search.execute(
+                self.manager, userdn=escape_for_search(userdn))
+        except LDAPException:
+            logger.debug(
+                'Exception in user_groups with userdn %r', userdn,
+                exc_info=True)
+            return None
 
         return result
 
