@@ -1,3 +1,12 @@
+0.4.1
+-----
+
+- Avoid fetching a connection from the pool when the result is cached.
+  This should improve the performance, particularly when the connection
+  pool is not working properly for some reason. Thanks to Daniel Nilsson.
+- Improved and documented the sample application
+
+
 0.4
 ---
 
