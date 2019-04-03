@@ -9,6 +9,7 @@ __pycache__
 .eggs/
 .tox/
 .idea/
+.venv/
 coverage.xml
 nosetests.xml
 tutorial.db

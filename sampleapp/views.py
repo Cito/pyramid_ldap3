@@ -9,7 +9,8 @@ from pyramid_ldap3 import get_ldap_connector
 
 @view_config(route_name='sampleapp.root', permission='view')
 def logged_in(request):
-    return Response('OK')
+    return Response(
+        'OK (%s)' % ', '.join(request.effective_principals))
 
 
 @view_config(route_name='sampleapp.logout')

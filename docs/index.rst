@@ -15,12 +15,12 @@ that supports both Python 2 and Python 3.
 Installation
 ------------
 
-``pyramid_ldap3`` depends on the `ldap3 <https://ldap3.readthedocs.io/>`_
-package.
+``pyramid_ldap3`` depends on the `pyramid <https://pypi.org/project/pyramid/>`_
+and `ldap3 <https://pypi.org/project/ldap3/>`_ packages.
+When you install ``pyramid_ldap3`` using pip (usually within a virtual
+environment), these dependencies will be installed automatically as well::
 
-You can install ``ldap3`` using pip, e.g. (within a virtualenv)::
-
-  $ pip install ldap3
+  $ pip install pyramid_ldap3
 
 
 Setup
@@ -319,20 +319,46 @@ Logging
 a DEBUG level useful for its own developers to see what's happening.
 
 
+Sample Application
+------------------
+
+``pyramid_ldap3`` comes with a very simple Pyramid sample application that has
+just a login form and shows whether the authentication via LDAP succeeded.
+The configuration file uses an `online LDAP test server
+<https://www.forumsys.com/tutorials/integration-how-to/ldap/online-ldap-test-server/>`_
+provided by Forum Systems.
+
+You can install and run the sample application (best done inside a separate
+virtual environment) using pip like this::
+
+  $ pip install -e .[sampleapp]
+  $ pserve --browser sampleapp.ini
+
+Now you should see the login form in your browser. After entering ``euler``
+as login and ``invalid`` as password, you should see the message
+``Invalid credentials``. Try again with ``password`` as password, now you
+should see the message ``OK`` and the credentials of the logged in user
+``euler``, including the DN of the group ``mathematicians.``
+
+
 More Information
 ----------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    api.rst
 
 
-Reporting Bugs / Development Versions
--------------------------------------
+Other Versions
+--------------
 
 Visit https://github.com/Cito/pyramid_ldap3 to download development or
 tagged versions.
+
+
+Reporting Bugs
+--------------
 
 Visit https://github.com/Cito/pyramid_ldap3/issues to report bugs.
 

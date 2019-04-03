@@ -8,20 +8,20 @@ CHANGES = open(path.join(here, 'CHANGES.txt')).read()
 requires = ['pyramid>=1.4', 'ldap3>=2.0']
 
 sampleapp_extras = [
-    'waitress', 'pyramid_debugtoolbar']
+    'waitress', 'pyramid_chameleon', 'pyramid_debugtoolbar']
 testing_extras = [
     'nose', 'coverage']
 docs_extras = [
-    'Sphinx>=1.3.1', 'docutils',
+    'Sphinx', 'docutils',
     'repoze.sphinx.autointerface', 'pylons-sphinx-themes']
 
 setup(
     name='pyramid_ldap3',
-    version='0.4',
+    version='0.4.1',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
-        "Framework :: Pylons",
+        "Framework :: Pyramid",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
@@ -40,7 +40,7 @@ setup(
         "License :: Repoze Public License"],
     author='Chris McDonough, Christoph Zwerschke',
     author_email='pylons-discuss@groups.google.com',
-    url='https://pylonsproject.org/',
+    url='https://trypyramid.com/extending-pyramid.html',
     license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
     keywords='web pyramid pylons ldap auth authentication',
     packages=find_packages(exclude=['docs', 'tests', 'sampleapp']),
@@ -52,7 +52,5 @@ setup(
         docs=docs_extras,
         testing=testing_extras),
     test_suite='tests',
-    entry_points="""\
-    [paste.app_factory]
-    sampleapp = sampleapp:main
-    """)
+    entry_points={
+        'paste.app_factory': ['sampleapp = sampleapp:main']})

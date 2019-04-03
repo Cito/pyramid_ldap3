@@ -25,18 +25,20 @@ def main(global_config, **settings):
     config.set_authorization_policy(
         ACLAuthorizationPolicy())
     config.ldap_setup(
-        'ldap://localhost',
-        bind='CN=ldap user,CN=Users,DC=example,DC=com',
-        passwd='ld@pu5er')
+        'ldap://ldap.forumsys.com',
+        bind='cn=read-only-admin,dc=example,dc=com',
+        passwd='password')
     config.ldap_set_login_query(
-        'CN=Users,DC=example,DC=com',
-        '(sAMAccountName=%(login)s)',
+        'dc=example,dc=com',
+        # '(sAMAccountName=%(login)s)',
+        '(uid=%(login)s)',
         scope=ldap3.SUBTREE,
         cache_period=0)
     config.ldap_set_groups_query(
-        'CN=Users,DC=example,DC=com',
+        'dc=example,dc=com',
         # '(member:1.2.840.113556.1.4.1941:=%(userdn)s)',
-        '(&(objectCategory=group)(member=%(userdn)s))',
+        # '(&(objectCategory=group)(member=%(userdn)s))',
+        '(&(objectClass=groupOfUniqueNames)(uniqueMember=%(userdn)s))',
         cache_period=60)
     config.add_route('sampleapp.root', '/')
     config.add_route('sampleapp.login', '/login')

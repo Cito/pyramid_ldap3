@@ -1,9 +1,12 @@
 * text=auto eol=lf
 
+*.bat text eol=crlf
 *.cfg text
 *.in text
 *.ini text
 *.pt text eol=lf
 *.py text eol=lf
+*.md text eol=lf
 *.rst text eol=lf
 *.txt text eol=lf
+*.bat
