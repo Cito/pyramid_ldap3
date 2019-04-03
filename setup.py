@@ -20,6 +20,7 @@ setup(
     version='0.4.1',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
+    long_description_content_type='text/x-rst',
     classifiers=[
         "Framework :: Pyramid",
         "Programming Language :: Python",
