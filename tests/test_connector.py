@@ -12,7 +12,7 @@ class TestGetLdapConnector(TestCase):
     def test_no_connector(self):
         request = DummyRequest()
         self.assertRaises(ConfigurationError, self._callFUT, request)
-        
+
     def test_with_connector(self):
         request = DummyRequest()
         request.ldap_connector = True

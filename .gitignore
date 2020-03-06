@@ -1,5 +1,6 @@
 *.egg
 *.egg-info
+*.log
 *.pyc
 *.pyo
 *$py.class

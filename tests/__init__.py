@@ -3,6 +3,11 @@ from unittest import TestCase
 from pyramid.testing import DummyRequest
 from pyramid.exceptions import ConfigurationError
 
+__all__ = [
+    'ConfigurationError', 'Dummy', 'DummyConfig', 'DummyLdap3',
+    'DummyLDAPConnector', 'DummyManager', 'DummyRequest', 'DummySearch',
+    'TestCase']
+
 
 class DummyLDAPConnector(object):
 

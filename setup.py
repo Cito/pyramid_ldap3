@@ -17,7 +17,7 @@ docs_extras = [
 
 setup(
     name='pyramid_ldap3',
-    version='0.4.1',
+    version='0.4.2',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
     long_description_content_type='text/x-rst',
@@ -25,14 +25,12 @@ setup(
         "Framework :: Pyramid",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         'Topic :: Software Development :: Libraries :: Python Modules',
         "Topic :: System :: Systems Administration"
             " :: Authentication/Directory :: LDAP",

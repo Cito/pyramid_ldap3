@@ -11,7 +11,8 @@ class TestLdapSetup(TestCase):
         from pyramid_ldap3 import Connector
         config = DummyConfig()
         self._callFUT(config, 'ldap://dummyhost')
-        self.assertEqual(config.req_method_args, ('ldap_connector', True, True))
+        self.assertEqual(config.req_method_args,
+                         ('ldap_connector', True, True))
         request = DummyRequest()
         connector = config.req_method(request)
         self.assertEqual(connector.__class__, Connector)
@@ -27,7 +28,8 @@ class TestLdapSetup(TestCase):
         from pyramid_ldap3 import Connector
         config = DummyConfig()
         self._callFUT(config, 'ldaps://dummyhost')
-        self.assertEqual(config.req_method_args, ('ldap_connector', True, True))
+        self.assertEqual(config.req_method_args,
+                         ('ldap_connector', True, True))
         request = DummyRequest()
         connector = config.req_method(request)
         self.assertEqual(connector.__class__, Connector)
@@ -44,7 +46,8 @@ class TestLdapSetup(TestCase):
         config = DummyConfig()
         self._callFUT(config, (
             'ldap://plainhost', 'ldaps://sslhost', 'ldap://custom:8389'))
-        self.assertEqual(config.req_method_args, ('ldap_connector', True, True))
+        self.assertEqual(config.req_method_args,
+                         ('ldap_connector', True, True))
         request = DummyRequest()
         connector = config.req_method(request)
         self.assertEqual(connector.__class__, Connector)
