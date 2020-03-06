@@ -1,4 +1,4 @@
-from . import TestCase, DummyConnection
+from . import TestCase, DummyManager
 
 
 class TestLDAPQuery(TestCase):
@@ -8,10 +8,13 @@ class TestLDAPQuery(TestCase):
         return _LDAPQuery(
             base_dn, filter_tmpl, scope, attributes, cache_period)
 
+    def _manager(self, with_result):
+        return DummyManager(with_result=with_result)
+
     def test_execute_no_result(self):
         inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'none', 'attrs', 0)
-        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
-        result = inst.execute(conn, login='foo')
+        manager = self._manager([{'dn': 'a', 'attributes': {'b': 'c'}}])
+        result = inst.execute(manager, login='foo')
         self.assertEqual(result, [])
 
     def test_query_cache_no_rollover(self):
@@ -29,29 +32,29 @@ class TestLDAPQuery(TestCase):
 
     def test_execute_no_cache_period(self):
         inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 0)
-        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
-        result = inst.execute(conn, login='foo')
+        manager = self._manager([{'dn': 'a', 'attributes': {'b': 'c'}}])
+        result = inst.execute(manager, login='foo')
         self.assertEqual(inst.cache, {})
         self.assertEqual(result, [('a', {'b': 'c'})])
-        self.assertEqual(conn.args, ('DN=Org', '(cn=foo)'))
-        self.assertEqual(
-            conn.kwargs, {'attributes': 'attrs', 'search_scope': 'scope'})
+        self.assertEqual(manager.search_args, ('DN=Org', '(cn=foo)'))
+        self.assertEqual(manager.search_kwargs, {
+            'attributes': 'attrs', 'search_scope': 'scope'})
 
     def test_execute_with_cache_period_miss(self):
         inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 1)
-        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
-        result = inst.execute(conn, login='foo')
+        manager = self._manager([{'dn': 'a', 'attributes': {'b': 'c'}}])
+        result = inst.execute(manager, login='foo')
         self.assertEqual(result, [('a', {'b': 'c'})])
-        self.assertEqual(conn.args, ('DN=Org', '(cn=foo)'))
-        self.assertEqual(conn.kwargs, {
+        self.assertEqual(manager.search_args, ('DN=Org', '(cn=foo)'))
+        self.assertEqual(manager.search_kwargs, {
             'attributes': 'attrs', 'search_scope': 'scope'})
 
     def test_execute_with_cache_period_hit(self):
         inst = self._makeOne('DN=Org', '(cn=%(login)s)', 'scope', 'attrs', 1)
         inst.last_timeslice = 1 << 31
         inst.cache[('DN=Org', '(cn=foo)')] = ('d', {'e': 'f'})
-        conn = DummyConnection([{'dn': 'a', 'attributes': {'b': 'c'}}])
-        result = inst.execute(conn, login='foo')
+        manager = self._manager([{'dn': 'a', 'attributes': {'b': 'c'}}])
+        result = inst.execute(manager, login='foo')
         self.assertEqual(result, ('d', {'e': 'f'}))
-        self.assertTrue(conn.args is None)
-        self.assertTrue(conn.kwargs is None)
+        self.assertTrue(manager.search_args is None)
+        self.assertTrue(manager.search_kwargs is None)

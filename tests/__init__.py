@@ -51,34 +51,47 @@ class DummyConfig(object):
 
 class DummyManager(object):
 
-    def __init__(self, with_errors=None):
-        self.with_errors = with_errors or []
+    def __init__(self, with_error=None, with_result=None):
+        self.with_error = with_error
+        self.with_result = with_result
         self.user = self.password = None
-        self.status = self.exit_info = None
+        self.bound = None
+        self.result_id = 0
+        self.search_args = self.search_kwargs = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        self.unbind()
 
     def connection(self, user=None, password=None):
         self.user = user
         self.password = password
-        if self.with_errors:
-            e = self.with_errors.pop(0)
-            if e is not None:
-                raise e
+        if self.with_error:
+            raise self.with_error
         self.bind()
         return self
 
-    def __enter__(self):
-        pass
-
-    def __exit__(self, *exit_info):
-        self.exit_info = exit_info
-        self.unbind()
-
     def bind(self):
-        self.status = 'bound'
-        return
+        self.bound = True
+        return False
 
     def unbind(self):
-        self.status = 'unbound'
+        self.bound = False
+
+    def search(self, *args, **kwargs):
+        if not self.bound:
+            raise AssertionError('connection not yet bound')
+        self.search_args = args
+        self.search_kwargs = kwargs
+        self.result_id += 1
+        return self.result_id
+
+    def get_response(self, result_id):
+        if self.search_kwargs['search_scope'] == 'none':
+            return None, result_id
+        return self.with_result, result_id
 
 
 class DummySearch(object):
@@ -86,35 +99,15 @@ class DummySearch(object):
     def __init__(self, result, exc=None):
         self.result = result
         self.exc = exc
-        self.conn = None
+        self.manager = None
         self.kw = None
 
-    def execute(self, conn, **kw):
+    def execute(self, manager, **kw):
         if self.exc is not None:
             raise self.exc
-        self.conn = conn
+        self.manager = manager
         self.kw = kw
         return self.result
-
-
-class DummyConnection(object):
-
-    def __init__(self, result):
-        self.result = result
-        self.result_id = 0
-        self.args = None
-        self.kwargs = None
-
-    def search(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        self.result_id += 1
-        return self.result_id
-
-    def get_response(self, result_id):
-        if self.kwargs['search_scope'] == 'none':
-            return None, result_id
-        return self.result, result_id
 
 
 class DummyLdap3Server(object):
