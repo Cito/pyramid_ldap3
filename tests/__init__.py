@@ -81,7 +81,7 @@ class DummyManager(object):
         self.bound = False
 
     def search(self, *args, **kwargs):
-        if not self.bound:
+        if not self.bound:  # pragma: no cover
             raise AssertionError('connection not yet bound')
         self.search_args = args
         self.search_kwargs = kwargs

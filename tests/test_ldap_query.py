@@ -26,7 +26,7 @@ class TestLDAPQuery(TestCase):
     def test_query_cache_with_rollover(self):
         inst = self._makeOne(None, None, None, None, 1)
         inst.cache['foo'] = 'bar'
-        self.assertTrue(inst.query_cache('foo') is None)
+        self.assertIsNone(inst.query_cache('foo'))
         self.assertEqual(inst.cache, {})
         self.assertNotEqual(inst.last_timeslice, 0)
 
@@ -56,5 +56,5 @@ class TestLDAPQuery(TestCase):
         manager = self._manager([{'dn': 'a', 'attributes': {'b': 'c'}}])
         result = inst.execute(manager, login='foo')
         self.assertEqual(result, ('d', {'e': 'f'}))
-        self.assertTrue(manager.search_args is None)
-        self.assertTrue(manager.search_kwargs is None)
+        self.assertIsNone(manager.search_args)
+        self.assertIsNone(manager.search_kwargs)

@@ -18,7 +18,7 @@ class TestLdapSetup(TestCase):
         self.assertEqual(connector.__class__, Connector)
         server = connector.manager.server
         import ldap3
-        self.assertTrue(isinstance(server, ldap3.Server))
+        self.assertIsInstance(server, ldap3.Server)
         self.assertEqual(server.host, 'dummyhost')
         self.assertEqual(server.port, 389)
         self.assertFalse(server.tls)
@@ -35,7 +35,7 @@ class TestLdapSetup(TestCase):
         self.assertEqual(connector.__class__, Connector)
         server = connector.manager.server
         import ldap3
-        self.assertTrue(isinstance(server, ldap3.Server))
+        self.assertIsInstance(server, ldap3.Server)
         self.assertEqual(server.host, 'dummyhost')
         self.assertEqual(server.port, 636)
         self.assertTrue(server.tls)
@@ -53,7 +53,7 @@ class TestLdapSetup(TestCase):
         self.assertEqual(connector.__class__, Connector)
         server_pool = connector.manager.server
         import ldap3
-        self.assertTrue(isinstance(server_pool, ldap3.ServerPool))
+        self.assertIsInstance(server_pool, ldap3.ServerPool)
         self.assertEqual(len(server_pool), 3)
         server = server_pool[0]
         self.assertEqual(server.host, 'plainhost')

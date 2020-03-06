@@ -2,6 +2,7 @@
 -----
 
 - We require Python 2.7 or 3.5 and newer now
+- Fixed and modernized the unit tests
 
 
 0.4.1

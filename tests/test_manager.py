@@ -44,7 +44,7 @@ class TestConnectionManager(TestCase):
         from pyramid_ldap3 import ldap3
         tls = ldap3.Tls()
         manager = self._makeOne('testhost', tls=tls)
-        self.assertTrue(manager.server.tls is tls)
+        self.assertIs(manager.server.tls, tls)
 
     def test_get_info(self):
         manager = self._makeOne('testhost')
@@ -66,13 +66,13 @@ class TestConnectionManager(TestCase):
         manager = self._makeOne('testhost', pool_lifetime=4200)
         self.assertEqual(manager.pool_lifetime, 4200)
         manager = self._makeOne('testhost', use_pool=False)
-        self.assertTrue(manager.pool_size is None)
+        self.assertIsNone(manager.pool_size)
 
     def test_connection(self):
         manager = self._makeOne('testhost')
         conn = manager.connection()
         self.assertEqual(conn.server.host, 'testhost')
-        self.assertTrue(conn.user is None)
+        self.assertIsNone(conn.user)
         conn = manager.connection('fred', 'flint')
         self.assertEqual(conn.user, 'fred')
         self.assertEqual(conn.password, 'flint')

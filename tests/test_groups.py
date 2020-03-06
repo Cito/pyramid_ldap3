@@ -11,7 +11,7 @@ class TestGetGroups(TestCase):
         request = DummyRequest()
         request.ldap_connector = DummyLDAPConnector(None)
         result = self._callFUT('testdn', request)
-        self.assertTrue(result is None)
+        self.assertIsNone(result)
 
     def test_with_group_list(self):
         request = DummyRequest()
@@ -30,7 +30,7 @@ class TestGroupfinder(TestCase):
         request = DummyRequest()
         request.ldap_connector = DummyLDAPConnector(None)
         result = self._callFUT('testdn', request)
-        self.assertTrue(result is None)
+        self.assertIsNone(result)
 
     def test_with_group_list(self):
         request = DummyRequest()
