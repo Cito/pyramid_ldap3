@@ -26,6 +26,8 @@ _ord = ord if str is bytes else int
 _escape_for_search = {
     '*': '\\2A', '(': '\\28', ')': '\\29', '\\': '\\5C', '\0': '\\00'}
 
+__all__ = ['get_ldap_connector', 'get_groups', 'groupfinder']
+
 
 def escape_for_search(s):
     """Escape search string for LDAP according to RFC4515 when necessary."""
