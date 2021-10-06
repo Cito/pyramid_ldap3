@@ -16,6 +16,19 @@ class TestConnectionManager(TestCase):
             pool_lifetime=pool_lifetime,
             get_info=get_info, ldap3=ldap3)
 
+    def _makeOne_with_realm(
+            self, uri,
+            bind=None, passwd=None, tls=None,
+            use_pool=True, pool_size=10, pool_lifetime=3600,
+            get_info=None, realm=None):
+        from pyramid_ldap3 import ConnectionManager
+        ldap3 = DummyLdap3()
+        return ConnectionManager(
+            uri, bind=bind, passwd=passwd, tls=tls,
+            use_pool=use_pool, pool_size=pool_size,
+            pool_lifetime=pool_lifetime,
+            get_info=get_info, ldap3=ldap3, realm=realm)
+
     def test_uri(self):
         manager = self._makeOne('testhost')
         self.assertFalse(manager.server.ssl)
@@ -76,3 +89,13 @@ class TestConnectionManager(TestCase):
         conn = manager.connection('fred', 'flint')
         self.assertEqual(conn.user, 'fred')
         self.assertEqual(conn.password, 'flint')
+
+    def test_connection_with_realm(self):
+        manager = self._makeOne_with_realm('testhost', realm='test_realm')
+        conn = manager.connection()
+        self.assertEqual(conn.server.host, 'testhost')
+        self.assertIsNone(conn.user)
+        conn = manager.connection('fred', 'flint')
+        self.assertEqual(conn.user, 'fred')
+        self.assertEqual(conn.password, 'flint')
+
