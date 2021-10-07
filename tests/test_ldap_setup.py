@@ -70,3 +70,22 @@ class TestLdapSetup(TestCase):
         self.assertEqual(server.port, 8389)
         self.assertFalse(server.tls)
         self.assertEqual(server.get_info, ldap3.NONE)
+
+    def test_it_defaults_realm(self):
+        from pyramid_ldap3 import Connector
+        config = DummyConfig()
+        self._callFUT(config, 'ldap://dummyhost', realm='test')
+        self.assertEqual(config.req_method_args,
+                         ('ldap_connector_test', True, True))
+        request = DummyRequest()
+        connector = config.req_method(request)
+        self.assertEqual(connector.__class__, Connector)
+        server = connector.manager.server
+        import ldap3
+        self.assertIsInstance(server, ldap3.Server)
+        self.assertEqual(server.host, 'dummyhost')
+        self.assertEqual(server.port, 389)
+        self.assertFalse(server.tls)
+        self.assertEqual(server.get_info, ldap3.NONE)
+
+

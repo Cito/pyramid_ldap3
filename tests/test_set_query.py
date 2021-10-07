@@ -18,6 +18,17 @@ class TestLdapSetGroupsQuery(TestCase):
         self.assertEqual(ldap_groups_query.scope, ldap3.SUBTREE)
         self.assertEqual(ldap_groups_query.cache_period, 0)
 
+    def test_it_realm(self):
+        import ldap3
+        config = DummyConfig()
+        self._callFUT(config, 'dn_test', 'tmpl_test', realm='test')
+        ldap_groups_query = getattr(config.registry, 'ldap_groups_query_test', None)
+        self.assertIsNotNone(ldap_groups_query)
+        self.assertEqual(ldap_groups_query.base_dn, 'dn_test')
+        self.assertEqual(ldap_groups_query.filter_tmpl, 'tmpl_test')
+        self.assertEqual(ldap_groups_query.scope, ldap3.SUBTREE)
+        self.assertEqual(ldap_groups_query.cache_period, 0)
+
 
 class TestLdapSetLoginQuery(TestCase):
 
@@ -33,5 +44,16 @@ class TestLdapSetLoginQuery(TestCase):
         self.assertIsNotNone(ldap_login_query)
         self.assertEqual(ldap_login_query.base_dn, 'dn')
         self.assertEqual(ldap_login_query.filter_tmpl, 'tmpl')
+        self.assertEqual(ldap_login_query.scope, ldap3.LEVEL)
+        self.assertEqual(ldap_login_query.cache_period, 0)
+
+    def test_it_realm(self):
+        from pyramid_ldap3 import ldap3
+        config = DummyConfig()
+        self._callFUT(config, 'dn_test', 'tmpl_test', realm='test')
+        ldap_login_query = getattr(config.registry, 'ldap_login_query_test', None)
+        self.assertIsNotNone(ldap_login_query)
+        self.assertEqual(ldap_login_query.base_dn, 'dn_test')
+        self.assertEqual(ldap_login_query.filter_tmpl, 'tmpl_test')
         self.assertEqual(ldap_login_query.scope, ldap3.LEVEL)
         self.assertEqual(ldap_login_query.cache_period, 0)
