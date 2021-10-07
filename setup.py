@@ -9,10 +9,11 @@ requires = ['pyramid>=1.4', 'ldap3>=2.0']
 
 sampleapp_extras = [
     'waitress', 'pyramid_chameleon', 'pyramid_debugtoolbar']
-testing_extras = [
-    'nose', 'coverage']
+testing_extras = ['coverage']
 docs_extras = [
-    'Sphinx>=2.4,<3', 'repoze.sphinx.autointerface', 'pylons-sphinx-themes']
+    'Sphinx>=3,<4',
+    'repoze.sphinx.autointerface>=0.8,<1',
+    'pylons-sphinx-themes>=1.0.8']
 
 setup(
     name='pyramid_ldap3',
@@ -38,10 +39,10 @@ setup(
         "Development Status :: 4 - Beta",
         "License :: Repoze Public License"],
     author='Chris McDonough, Christoph Zwerschke',
-    author_email='pylons-discuss@groups.google.com',
+    author_email='pylons-discuss@googlegroups.com',
     url='https://trypyramid.com/extending-pyramid.html',
-    license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
-    keywords='web pyramid pylons ldap auth authentication',
+    license="BSD-derived (Repoze)",
+    keywords=['web', 'pyramid', 'pylons', 'ldap', 'auth', 'authentication'],
     packages=find_packages(exclude=['docs', 'tests', 'sampleapp']),
     zip_safe=False,
     install_requires=requires,
@@ -51,5 +52,4 @@ setup(
         docs=docs_extras,
         testing=testing_extras),
     test_suite='tests',
-    entry_points={
-        'paste.app_factory': ['sampleapp = sampleapp:main']})
+    entry_points={'paste.app_factory': ['sampleapp = sampleapp:main']})
