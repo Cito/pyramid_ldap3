@@ -107,25 +107,9 @@ def _timeslice(period, when=None):
     return when - (when % period)
 
 
-def _activity_identifier(base_identifier, realm=None):
-    if realm:
-        return '-'.join((base_identifier, realm))
-    else:
-        return base_identifier
+def _add_realm(base_identifier, realm=None):
+    return '{}_{}'.format(base_identifier, realm) if realm else base_identifier
 
-
-def _registry_identifier(base_identifier, realm=None):
-    if realm:
-        return '_'.join((base_identifier, realm))
-    else:
-        return base_identifier
-
-
-def _pool_identifier(base_identifier, realm=None):
-    if realm:
-        return '_'.join((base_identifier, realm))
-    else:
-        return base_identifier
 
 class ConnectionManager(object):
     """Provides API methods for managing LDAP connections."""
@@ -161,7 +145,7 @@ class ConnectionManager(object):
         self.bind, self.passwd = bind, passwd
         if use_pool:
             self.strategy = ldap3.REUSABLE
-            self.pool_name = _pool_identifier('pyramid_ldap3', realm)
+            self.pool_name = _add_realm('pyramid_ldap3', realm)
             self.pool_size = pool_size
             self.pool_lifetime = pool_lifetime
         else:
@@ -195,8 +179,8 @@ class Connector(object):
         self.registry = registry
         self.manager = manager
         self.realm = realm
-        self.login_qry_identif = _registry_identifier('ldap_login_query', realm)
-        self.group_qry_identif = _registry_identifier('ldap_groups_query', realm)
+        self.login_query_identifier = _add_realm('ldap_login_query', realm)
+        self.group_query_identifier = _add_realm('ldap_groups_query', realm)
 
     def authenticate(self, login, password):
         """Validate the given login name and password.
@@ -223,7 +207,7 @@ class Connector(object):
         if password == '':
             return None
 
-        search = getattr(self.registry, self.login_qry_identif, None)
+        search = getattr(self.registry, self.login_query_identifier, None)
         if search is None:
             raise ConfigurationError(
                 'ldap_set_login_query was not called during setup')
@@ -263,7 +247,7 @@ class Connector(object):
         :exc:`pyramid.exceptions.ConfiguratorError`
 
         """
-        search = getattr(self.registry, self.group_qry_identif, None)
+        search = getattr(self.registry, self.group_query_identifier, None)
         if search is None:
             raise ConfigurationError(
                 'set_ldap_groups_query was not called during setup')
@@ -290,12 +274,12 @@ def ldap_set_login_query(
     it should contain the replacement value ``%(login)s``.
     ``scope`` is any valid LDAP scope value
     (e.g. ``ldap3.LEVEL`` or ``ldap3.SUBTREE``).
-    ``attributes`` is a list of attributes that shall be returned
+    ``attributes`` is an optional list of attributes that shall be returned
     (can also be set to None or ``ldap3.ALL_ATTRIBUTES``).
     ``cache_period`` is the number of seconds to cache login search results;
-    if it is 0, login search results will not be cached.
-    ``realm`` is a realm for this connection. This allows multiple
-    ldap servers to be used.  **default: None**
+    if it is 0 (the default), login search results will not be cached.
+    ``realm`` is an optional realm for this connection.
+    This allows multiple ldap servers to be used.
 
     Example::
 
@@ -307,23 +291,23 @@ def ldap_set_login_query(
     The registered search must return one and only one value to be considered
     a valid login.
     """
-    query_identif = _registry_identifier('ldap_login_query', realm)
-    intr_identif = _registry_identifier('pyramid_ldap3', realm)
-    act_identif = _activity_identifier('pyramid_ldap3', realm)
-
+    query_identifier = _add_realm('ldap_login_query', realm)
     query = _LDAPQuery(base_dn, filter_tmpl, scope, attributes, cache_period)
 
     def register():
-        setattr(config.registry, query_identif, query)
+        setattr(config.registry, query_identifier, query)
 
-    login_query_identifier = '{} login query'.format(intr_identif)
-    intr = config.introspectable(
-        login_query_identifier,
+    introspectable_name = '{} login query'.format(
+        _add_realm('pyramid_ldap3', realm))
+    introspectable = config.introspectable(
+        introspectable_name,
         None,
         str(query),
-        login_query_identifier)
+        introspectable_name)
 
-    config.action(act_identif, register, introspectables=(intr,))
+    action_name = 'setup_{}'.format(query_identifier)
+    config.action(action_name, register,
+                  introspectables=(introspectable,))
 
 
 def ldap_set_groups_query(
@@ -337,12 +321,12 @@ def ldap_set_groups_query(
     it should contain the replacement value ``%(userdn)s``.
     ``scope`` is any valid LDAP scope value
     (e.g. ``ldap3.LEVEL`` or ``ldap3.SUBTREE``).
-    ``attributes`` is a list of attributes that shall be returned
+    ``attributes`` is an optional list of attributes that shall be returned
     (can also be set to None or ``ldap3.ALL_ATTRIBUTES``).
     ``cache_period`` is the number of seconds to cache groups search results;
-    if it is 0, groups search results will not be cached.
-    ``realm`` is a realm for this connection. This allows multiple ldap
-    servers to be used.  **default: None**
+    if it is 0 (the default), groups search results will not be cached.
+    ``realm`` is an optional realm for this connection.
+    This allows multiple ldap servers to be used.
 
     Example::
 
@@ -352,23 +336,23 @@ def ldap_set_groups_query(
             scope=ldap3.SUBTREE)
 
     """
-    query_identif = _registry_identifier('ldap_groups_query', realm)
-    intr_identif = _registry_identifier('pyramid_ldap3', realm)
-    act_identif = _activity_identifier('ldap-set-groups-query', realm)
-
+    query_identifier = _add_realm('ldap_groups_query', realm)
     query = _LDAPQuery(base_dn, filter_tmpl, scope, attributes, cache_period)
 
     def register():
-        setattr(config.registry, query_identif, query)
+        setattr(config.registry, query_identifier, query)
 
-    groups_query_identifier = '{} groups query'.format(intr_identif)
-    intr = config.introspectable(
-        groups_query_identifier,
+    introspectable_name = '{} groups query'.format(
+        _add_realm('pyramid_ldap3', realm))
+    introspectable = config.introspectable(
+        introspectable_name,
         None,
         str(query),
-        groups_query_identifier)
+        introspectable_name)
 
-    config.action(act_identif, register, introspectables=(intr,))
+    action_name = 'setup_{}'.format(query_identifier)
+    config.action(action_name, register,
+                  introspectables=(introspectable,))
 
 
 def ldap_setup(
@@ -391,11 +375,10 @@ def ldap_setup(
       when using a connection pool.  **default: 3600**
     - **get_info**: specifies if schema or server specific info shall be read
       for proper formatting of attributes.  **default: None**
-    - **realm**: specify a realm for this connection. This allows multiple ldap servers to be used.  **default: None**
+    - **realm**: specify a realm for this connection.
+      This allows multiple ldap servers to be used.  **default: None**
     """
-    conn_identif = _registry_identifier('ldap_connector', realm)
-    intr_identif = _registry_identifier('pyramid_ldap3', realm)
-    act_identif = _activity_identifier('ldap-setup', realm)
+    connection_identifier = _add_realm('ldap_connector', realm)
 
     manager = ConnectionManager(
         uri, bind, passwd, use_tls,
@@ -406,20 +389,26 @@ def ldap_setup(
         return Connector(request.registry, manager, realm)
 
     config.add_request_method(
-        get_connector, conn_identif, property=True, reify=True)
+        get_connector, connection_identifier, property=True, reify=True)
 
-    introspectable_name = '{} setup'.format(intr_identif)
-    intr = config.introspectable(
+    introspectable_name = '{} setup'.format(_add_realm('pyramid_ldap3', realm))
+    introspectable = config.introspectable(
         introspectable_name,
         None,
         str(manager),
         introspectable_name)
-    config.action(act_identif, None, introspectables=(intr,))
+
+    action_name = 'setup_{}'.format(connection_identifier)
+    config.action(action_name, None, introspectables=(introspectable,))
+
 
 def get_ldap_connector_name(realm=None):
-    """ Return the name of the connector attached to the request
-    for the named **realm**."""
-    return _registry_identifier('ldap_connector', realm)
+    """Return the name of the connector attached to the request.
+
+     You can also specify the ``realm`` for the connector.
+     """
+    return _add_realm('ldap_connector', realm)
+
 
 def get_ldap_connector(request, realm=None):
     """Return the LDAP connector attached to the request.

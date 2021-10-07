@@ -5,41 +5,37 @@ from . import (
 
 class TestGetLdapConnector(TestCase):
 
-    def _callFUT_no_realm(self, request):
-        from pyramid_ldap3 import get_ldap_connector
-        return get_ldap_connector(request)
-
-    def _callFUT_with_realm(self, request, realm):
+    def _call_fut(self, request, realm=None):
         from pyramid_ldap3 import get_ldap_connector
         return get_ldap_connector(request, realm)
 
     def test_no_connector(self):
         request = DummyRequest()
-        self.assertRaises(ConfigurationError, self._callFUT_no_realm, request)
+        self.assertRaises(ConfigurationError, self._call_fut, request)
 
     def test_with_connector(self):
         request = DummyRequest()
         request.ldap_connector = True
-        result = self._callFUT_no_realm(request)
+        result = self._call_fut(request)
         self.assertEqual(result, True)
 
     def test_with_connector_and_realm(self):
         request = DummyRequest()
         request.ldap_connector_test_realm = True
-        self.assertRaises(ConfigurationError, self._callFUT_no_realm, request)
-        result = self._callFUT_with_realm(request, 'test_realm')
+        self.assertRaises(ConfigurationError, self._call_fut, request)
+        result = self._call_fut(request, 'test_realm')
         self.assertEqual(result, True)
 
 
-class TestConnectorNoRealm(TestCase):
+class TestConnectorWithoutRealm(TestCase):
 
-    def _makeOne(self, registry, manager):
+    def _make_one(self, registry, manager):
         from pyramid_ldap3 import Connector
         return Connector(registry, manager)
 
     def test_authenticate_no_ldap_login_query(self):
         manager = DummyManager()
-        inst = self._makeOne(None, manager)
+        inst = self._make_one(None, manager)
         self.assertRaises(ConfigurationError, inst.authenticate, None, None)
         self.assertIsNone(manager.bound)
 
@@ -47,7 +43,7 @@ class TestConnectorNoRealm(TestCase):
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_login_query = DummySearch([])
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertIsNone(inst.authenticate(None, None))
         self.assertIsNone(manager.bound)
 
@@ -55,7 +51,7 @@ class TestConnectorNoRealm(TestCase):
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_login_query = DummySearch([('a', 'b')])
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertIsNone(inst.authenticate('foo', ''))
         self.assertIsNone(manager.bound)
 
@@ -63,7 +59,7 @@ class TestConnectorNoRealm(TestCase):
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_login_query = DummySearch([('a', 'b')])
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertEqual(inst.authenticate(None, None), ('a', 'b'))
         self.assertIs(manager.bound, False)
 
@@ -71,7 +67,7 @@ class TestConnectorNoRealm(TestCase):
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_login_query = DummySearch([('a', 'b'), ('a', 'c')])
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertIsNone(inst.authenticate(None, None))
         self.assertIsNone(manager.bound)
 
@@ -80,7 +76,7 @@ class TestConnectorNoRealm(TestCase):
         manager = DummyManager(with_error=LDAPException)
         registry = Dummy()
         registry.ldap_login_query = DummySearch([('a', 'b')])
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertIsNone(inst.authenticate(None, None))
         self.assertIsNone(manager.bound)
 
@@ -89,7 +85,7 @@ class TestConnectorNoRealm(TestCase):
         registry = Dummy()
         search = DummySearch([('a', 'b')])
         registry.ldap_login_query = search
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertEqual(inst.authenticate('abc123', 'def456'), ('a', 'b'))
         self.assertEqual(search.kw['login'], 'abc123')
         self.assertEqual(search.kw['password'], 'def456')
@@ -104,7 +100,7 @@ class TestConnectorNoRealm(TestCase):
 
     def test_user_groups_no_ldap_groups_query(self):
         manager = DummyManager()
-        inst = self._makeOne(None, manager)
+        inst = self._make_one(None, manager)
         self.assertRaises(ConfigurationError, inst.user_groups, None)
         self.assertIsNone(manager.bound)
 
@@ -112,7 +108,7 @@ class TestConnectorNoRealm(TestCase):
         manager = DummyManager()
         registry = Dummy()
         registry.ldap_groups_query = DummySearch([('a', 'b')])
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertEqual(inst.user_groups(None), [('a', 'b')])
         self.assertIsNone(manager.bound)
 
@@ -122,7 +118,7 @@ class TestConnectorNoRealm(TestCase):
         registry = Dummy()
         registry.ldap_groups_query = DummySearch(
             [('a', 'b')], LDAPException)
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertIsNone(inst.user_groups(None))
         self.assertIsNone(manager.bound)
 
@@ -131,7 +127,7 @@ class TestConnectorNoRealm(TestCase):
         registry = Dummy()
         search = DummySearch([('a', 'b')])
         registry.ldap_groups_query = search
-        inst = self._makeOne(registry, manager)
+        inst = self._make_one(registry, manager)
         self.assertEqual(inst.user_groups('abc123'), [('a', 'b')])
         self.assertEqual(search.kw['userdn'], 'abc123')
         self.assertEqual(inst.user_groups('(abc*123)'), [('a', 'b')])
@@ -145,17 +141,13 @@ class TestConnectorNoRealm(TestCase):
 
 class TestConnectorWithRealm(TestCase):
 
-    def _makeOne(self, registry, manager, realm):
+    def _make_one(self, registry, manager, realm=None):
         from pyramid_ldap3 import Connector
         return Connector(registry, manager, realm)
 
-    def _makeOne_no_realm(self, registry, manager):
-        from pyramid_ldap3 import Connector
-        return Connector(registry, manager)
-
     def test_authenticate_no_ldap_login_query(self):
         manager = DummyManager()
-        inst = self._makeOne(None, manager, 'test_realm')
+        inst = self._make_one(None, manager, 'test_realm')
         self.assertRaises(ConfigurationError, inst.authenticate, None, None)
         self.assertIsNone(manager.bound)
 
@@ -164,19 +156,19 @@ class TestConnectorWithRealm(TestCase):
         registry = Dummy()
         registry.ldap_login_query_test_realm = DummySearch([('a', 'b')])
         registry.ldap_login_query_another_realm = DummySearch([('c', 'd')])
-        inst = self._makeOne_no_realm(None, manager)
+        inst = self._make_one(None, manager)
         self.assertRaises(ConfigurationError, inst.authenticate, None, None)
         self.assertIsNone(manager.bound)
-        inst = self._makeOne(registry, manager, 'test_realm')
+        inst = self._make_one(registry, manager, 'test_realm')
         self.assertEqual(inst.authenticate(None, None), ('a', 'b'))
         self.assertIs(manager.bound, False)
-        inst = self._makeOne(registry, manager, 'another_realm')
+        inst = self._make_one(registry, manager, 'another_realm')
         self.assertEqual(inst.authenticate(None, None), ('c', 'd'))
         self.assertIs(manager.bound, False)
 
     def test_user_groups_no_ldap_groups_query(self):
         manager = DummyManager()
-        inst = self._makeOne(None, manager, 'test_realm')
+        inst = self._make_one(None, manager, 'test_realm')
         self.assertRaises(ConfigurationError, inst.user_groups, None)
         self.assertIsNone(manager.bound)
 
@@ -185,12 +177,12 @@ class TestConnectorWithRealm(TestCase):
         registry = Dummy()
         registry.ldap_groups_query_test_realm = DummySearch([('a', 'b')])
         registry.ldap_groups_query_another_realm = DummySearch([('c', 'd')])
-        inst = self._makeOne_no_realm(None, manager)
+        inst = self._make_one(None, manager)
         self.assertRaises(ConfigurationError, inst.user_groups, None)
         self.assertIsNone(manager.bound)
-        inst = self._makeOne(registry, manager, 'test_realm')
+        inst = self._make_one(registry, manager, 'test_realm')
         self.assertEqual(inst.user_groups(None), [('a', 'b')])
         self.assertIsNone(manager.bound)
-        inst = self._makeOne(registry, manager, 'another_realm')
+        inst = self._make_one(registry, manager, 'another_realm')
         self.assertEqual(inst.user_groups(None), [('c', 'd')])
         self.assertIsNone(manager.bound)

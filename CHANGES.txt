@@ -1,3 +1,9 @@
+0.5
+---
+
+- Support realms (using different LDAP servers)
+
+
 0.4.2
 -----
 

@@ -3,14 +3,14 @@ from . import TestCase, DummyConfig, DummyRequest
 
 class TestLdapSetup(TestCase):
 
-    def _callFUT(self, config, uri, **kw):
+    def _call_fut(self, config, uri, **kw):
         from pyramid_ldap3 import ldap_setup
         return ldap_setup(config, uri, **kw)
 
     def test_it_defaults_ldap_host(self):
         from pyramid_ldap3 import Connector
         config = DummyConfig()
-        self._callFUT(config, 'ldap://dummyhost')
+        self._call_fut(config, 'ldap://dummyhost')
         self.assertEqual(config.req_method_args,
                          ('ldap_connector', True, True))
         request = DummyRequest()
@@ -27,7 +27,7 @@ class TestLdapSetup(TestCase):
     def test_it_defaults_ldaps_host(self):
         from pyramid_ldap3 import Connector
         config = DummyConfig()
-        self._callFUT(config, 'ldaps://dummyhost')
+        self._call_fut(config, 'ldaps://dummyhost')
         self.assertEqual(config.req_method_args,
                          ('ldap_connector', True, True))
         request = DummyRequest()
@@ -44,7 +44,7 @@ class TestLdapSetup(TestCase):
     def test_it_defaults_ldap_hosts(self):
         from pyramid_ldap3 import Connector
         config = DummyConfig()
-        self._callFUT(config, (
+        self._call_fut(config, (
             'ldap://plainhost', 'ldaps://sslhost', 'ldap://custom:8389'))
         self.assertEqual(config.req_method_args,
                          ('ldap_connector', True, True))
@@ -74,7 +74,7 @@ class TestLdapSetup(TestCase):
     def test_it_defaults_realm(self):
         from pyramid_ldap3 import Connector
         config = DummyConfig()
-        self._callFUT(config, 'ldap://dummyhost', realm='test')
+        self._call_fut(config, 'ldap://dummyhost', realm='test')
         self.assertEqual(config.req_method_args,
                          ('ldap_connector_test', True, True))
         request = DummyRequest()
@@ -87,5 +87,3 @@ class TestLdapSetup(TestCase):
         self.assertEqual(server.port, 389)
         self.assertFalse(server.tls)
         self.assertEqual(server.get_info, ldap3.NONE)
-
-

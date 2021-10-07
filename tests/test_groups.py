@@ -22,18 +22,18 @@ class TestGetGroups(TestCase):
 
 class TestGroupfinder(TestCase):
 
-    def _callFUT(self, dn, request):
+    def _call_fut(self, dn, request):
         from pyramid_ldap3 import groupfinder
         return groupfinder(dn, request)
 
     def test_no_group_list(self):
         request = DummyRequest()
         request.ldap_connector = DummyLDAPConnector(None)
-        result = self._callFUT('testdn', request)
+        result = self._call_fut('testdn', request)
         self.assertIsNone(result)
 
     def test_with_group_list(self):
         request = DummyRequest()
         request.ldap_connector = DummyLDAPConnector([('groupdn', None)])
-        result = self._callFUT('testdn', request)
+        result = self._call_fut('testdn', request)
         self.assertEqual(result, ['groupdn'])
