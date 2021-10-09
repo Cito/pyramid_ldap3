@@ -17,7 +17,7 @@ docs_extras = [
 
 setup(
     name='pyramid_ldap3',
-    version='0.5a0',
+    version='0.5',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
     long_description_content_type='text/x-rst',
