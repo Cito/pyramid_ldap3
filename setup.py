@@ -1,8 +1,9 @@
 from os import path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 here = path.abspath(path.dirname(__file__))
-README = open(path.join(here, 'README.rst')).read()
+README = open(path.join(here, 'README.md')).read()
 CHANGES = open(path.join(here, 'CHANGES.txt')).read()
 
 requires = ['pyramid>=1.4', 'ldap3>=2.0']
@@ -20,7 +21,7 @@ setup(
     version='0.5',
     description='pyramid_ldap3',
     long_description=README + '\n\n' + CHANGES,
-    long_description_content_type='text/x-rst',
+    long_description_content_type='text/markdown',
     classifiers=[
         "Framework :: Pyramid",
         "Programming Language :: Python",
