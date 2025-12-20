@@ -12,9 +12,9 @@ sampleapp_extras = [
     'waitress', 'pyramid_chameleon', 'pyramid_debugtoolbar']
 testing_extras = ['coverage']
 docs_extras = [
-    'Sphinx>=3,<4',
-    'repoze.sphinx.autointerface>=0.8,<1',
-    'pylons-sphinx-themes>=1.0.8']
+    'Sphinx>=4',
+    'repoze.sphinx.autointerface>=1',
+    'pylons-sphinx-themes>=1']
 
 setup(
     name='pyramid_ldap3',
